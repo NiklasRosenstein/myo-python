@@ -13,10 +13,21 @@ class NoSuchEnumerationValue(Exception):
 
     pass
 
+class Data(object):
+    r""" Small class that can be used to specify data on an
+    enumeration that should not be converted and interpreted
+    as an enumeration value. """
+
+    def __init__(self, value):
+        super(Data, self).__init__()
+        self.value = value
+
 class EnumerationMeta(type(ctypes.c_int)):
     r""" This is the meta class for the :class:`Enumeration`
     base class which handles the automatic conversion of integer
-    values to instances of the Enumeration class.
+    values to instances of the Enumeration class. There are no
+    other types allowed other than int or :class:`Data` which
+    will be unpacked on the Enumeration class.
 
     If an ``__fallback__`` was defined on class-level as
     an integer, the :class:`Enumeration` constructor will not
@@ -28,6 +39,25 @@ class EnumerationMeta(type(ctypes.c_int)):
 
     def __new__(cls, name, bases, data):
 
+        # Unpack all Data objects and create a dictionary of
+        # values that will be converted to instances of the
+        # enumeration class later.
+        enum_values = {}
+        for key, value in data.items():
+            # Unpack Data objects into the class.
+            if isinstance(value, Data):
+                data[key] = value.value
+
+            # Integers will be enumeration values.
+            elif isinstance(value, int):
+                enum_values[key] = value
+
+            # We don't accept anything else.
+            elif not key.startswith('__') and not key.endswith('__'):
+                message = 'Enumeration must consist of ints or Data objects ' \
+                          'only, got %s for \'%s\''
+                raise TypeError(message % (value.__class__.__name__, key))
+
         # Create the new class object and give it the dictionary
         # that will map the integral values to the instances.
         class_ = type(ctypes.c_int).__new__(cls, name, bases, data)
@@ -36,11 +66,7 @@ class EnumerationMeta(type(ctypes.c_int)):
         # Iterate over all entries in the data entries and
         # convert integral values to instances of the enumeration
         # class.
-        for key, value in data.iteritems():
-            if not isinstance(value, int):
-                # We won't bother if it isn't an integer and assume
-                # it is some other sort of required data.
-                continue
+        for key, value in enum_values.iteritems():
 
             # Create the new object. We must not use the classes'
             # __new__() method as it resolves the object from the
@@ -115,4 +141,9 @@ class Enumeration(ctypes.c_int):
     def __repr__(self):
         class_name = self.__class__.__name__
         return '<%s: [%d] %s>' % (class_name, self.name, self.value)
+
+    def __index__(self):
+        return self.value
+
+Enumeration.Data = Data
 
