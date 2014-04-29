@@ -1,0 +1,9 @@
+*.py[cod]
+myo/dist/
+
+# Shared libraries
+*.dll
+*.so
+*.so64
+*.dylib
+*.dylib64
