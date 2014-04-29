@@ -2,6 +2,7 @@
 # All rights reserved.
 
 import ctypes
+from myo import six
 
 class NoSuchEnumerationValue(Exception):
     r""" Raised when an Enumeration object was attempted to be
@@ -22,7 +23,7 @@ class Data(object):
         super(Data, self).__init__()
         self.value = value
 
-class EnumerationMeta(type(ctypes.c_int)):
+class EnumerationMeta(type):
     r""" This is the meta class for the :class:`Enumeration`
     base class which handles the automatic conversion of integer
     values to instances of the Enumeration class. There are no
@@ -33,7 +34,10 @@ class EnumerationMeta(type(ctypes.c_int)):
     an integer, the :class:`Enumeration` constructor will not
     raise a :class:`NoSuchEnumerationValue` exception if the
     passed value did not match the enumeration values, but
-    instead return that fallback value. """
+    instead return that fallback value.
+
+    This fallback is not taken into account when attempting
+    to create a new Enumeration object by a string. """
 
     __fallback__ = None
 
@@ -53,14 +57,14 @@ class EnumerationMeta(type(ctypes.c_int)):
                 enum_values[key] = value
 
             # We don't accept anything else.
-            elif not key.startswith('__') and not key.endswith('__'):
+            elif not key.startswith('_'):
                 message = 'Enumeration must consist of ints or Data objects ' \
                           'only, got %s for \'%s\''
                 raise TypeError(message % (value.__class__.__name__, key))
 
         # Create the new class object and give it the dictionary
         # that will map the integral values to the instances.
-        class_ = type(ctypes.c_int).__new__(cls, name, bases, data)
+        class_ = type.__new__(cls, name, bases, data)
         class_._values = {}
 
         # Iterate over all entries in the data entries and
@@ -71,8 +75,8 @@ class EnumerationMeta(type(ctypes.c_int)):
             # Create the new object. We must not use the classes'
             # __new__() method as it resolves the object from the
             # existing values.
-            obj = ctypes.c_int.__new__(class_)
-            ctypes.c_int.__init__(obj)
+            obj = object.__new__(class_)
+            object.__init__(obj)
 
             obj.value = value
             obj.name = key
@@ -85,7 +89,7 @@ class EnumerationMeta(type(ctypes.c_int)):
 
         return class_
 
-class Enumeration(ctypes.c_int):
+class Enumeration(object):
     r""" This is the base class for listing enumerations. All
     components of the class that are integers will be automatically
     converted to instances of the Enumeration class. Creating new
@@ -94,10 +98,13 @@ class Enumeration(ctypes.c_int):
 
     __metaclass__ = EnumerationMeta
 
-    def __new__(cls, value):
+    def __new__(cls, value, _allow_fallback=True):
         r""" Creates a new instance of the Enumeration. *value* must
         be the integral number of one of the existing enumerations.
-        :class:`NoSuchEnumerationValue` is raised in any other case. """
+        :class:`NoSuchEnumerationValue` is raised in any other case.
+
+        If a fallback was defined, it is returned only if *value*
+        is an integer, not if it is a string. """
 
         # Try to find the actual instance of the Enumeration class
         # for the integer value and return it if it is available.
@@ -108,10 +115,21 @@ class Enumeration(ctypes.c_int):
 
                 # If a fallback value was specified, use it
                 # instead of raising an exception.
-                if cls.__fallback__ is not None:
+                if _allow_fallback and cls.__fallback__ is not None:
                     return cls.__fallback__
 
                 raise NoSuchEnumerationValue(cls.__name__, value)
+
+        # Or by name?
+        elif isinstance(value, six.string_types):
+            try:
+                new_value = getattr(cls, value)
+                if type(new_value) != cls:
+                    raise AttributeError
+            except AttributeError:
+                raise NoSuchEnumerationValue(cls.__name__, value)
+
+            value = new_value
 
         # At this point, value must be an object of the Enumeration
         # class, otherwise an invalid value was passed.
@@ -140,10 +158,28 @@ class Enumeration(ctypes.c_int):
 
     def __repr__(self):
         class_name = self.__class__.__name__
-        return '<%s: [%d] %s>' % (class_name, self.name, self.value)
+        return '<%s: [%d] %s>' % (class_name, self.value, self.name)
 
     def __index__(self):
         return self.value
+
+    # ctypes support
+
+    @property
+    def _as_parameter_(self):
+        return ctypes.c_int(self.value)
+
+    @Data
+    def from_param(self, x):
+        if isinstance(x, six.string_types + (int,)):
+            x = self.__class__(x, _allow_fallback=False)
+
+        if type(x) != self.__class__:
+            c1 = x.__class__.__name__
+            c2 = self.__class__.__name__
+            raise ValueError('can not convert %s to %s' % (c1, c2))
+
+        return ctypes.c_int(x.value)
 
 Enumeration.Data = Data
 
