@@ -39,6 +39,7 @@ class EnumerationMeta(type):
     This fallback is not taken into account when attempting
     to create a new Enumeration object by a string. """
 
+    _values = None
     __fallback__ = None
 
     def __new__(cls, name, bases, data):
@@ -88,6 +89,13 @@ class EnumerationMeta(type):
             setattr(class_, key, obj)
 
         return class_
+
+    def __iter__(self):
+        r""" Iterator over value-sorted enumeration values. """
+
+        values = self._values.values()
+        values.sort(key=lambda x: x.value)
+        return iter(values)
 
 class Enumeration(object):
     r""" This is the base class for listing enumerations. All
@@ -144,6 +152,8 @@ class Enumeration(object):
     def __eq__(self, other):
         if type(other) == self.__class__:
             return other.value == self.value
+        elif isinstance(other, six.string_types):
+            return other == self.name
         return False
 
     def __ne__(self, other):
@@ -170,16 +180,8 @@ class Enumeration(object):
         return ctypes.c_int(self.value)
 
     @Data
-    def from_param(self, x):
-        if isinstance(x, six.string_types + (int,)):
-            x = self.__class__(x, _allow_fallback=False)
-
-        if type(x) != self.__class__:
-            c1 = x.__class__.__name__
-            c2 = self.__class__.__name__
-            raise ValueError('can not convert %s to %s' % (c1, c2))
-
-        return ctypes.c_int(x.value)
+    def from_param(self):
+        return ctypes.c_int(self.value)
 
 Enumeration.Data = Data
 
