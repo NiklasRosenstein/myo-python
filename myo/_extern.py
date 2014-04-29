@@ -494,7 +494,7 @@ class event_t(base_void_p):
         return [lib.event_get_orientation(self, i) for i in orientation_index_t]
 
     @property
-    def accelerometer(self):
+    def acceleration(self):
         self._checktype(event_type_t.orientation)
         return [lib.event_get_accelerometer(self, i) for i in xrange(3)]
 
@@ -523,7 +523,7 @@ class MyoError(Exception):
 class ResultError(MyoError):
 
     def __init__(self, kind, message):
-        super(error, self).__init__()
+        super(ResultError, self).__init__()
         self.kind = kind
         self.message = message
 
