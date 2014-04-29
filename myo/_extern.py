@@ -1,6 +1,25 @@
 # Copyright (C) 2014  Niklas Rosenstein
 # All rights reserved.
 
+__all__ = (
+    # enumerations
+    'result_t', 'vibration_type_t', 'pose_t', 'event_type_t',
+    'version_component_t', 'orientation_index_t', 'handler_result_t',
+
+    # structure wrappers
+    'error_details_t', 'hub_t', 'myo_t', 'training_dataset_t',
+    'event_t',
+
+    # callback types
+    'training_collect_status_t', 'handler_t',
+
+    # exceptions
+    'MyoError', 'ResultError', 'InvalidOperation',
+
+    # functions
+    'init',
+)
+
 import os
 import sys
 import warnings
@@ -347,14 +366,6 @@ class hub_t(base_void_p):
     def __del__(self):
         if self:
             self.shutdown()
-
-@initializer
-class string_t(base_void_p):
-
-    @staticmethod
-    def _init_lib():
-        init_func('string_c_str', ctypes.c_char_p, string_t)
-        init_func('string_free', None, string_t)
 
 @initializer
 class myo_t(base_void_p):
