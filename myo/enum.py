@@ -180,8 +180,16 @@ class Enumeration(object):
         return ctypes.c_int(self.value)
 
     @Data
-    def from_param(self):
-        return ctypes.c_int(self.value)
+    @classmethod
+    def from_param(cls, obj):
+        if isinstance(obj, (int,) + (six.string_types,)):
+            obj = cls(obj)
+        if type(obj) != cls:
+            c1 = cls.__name__
+            c2 = obj.__class__.__name__
+            raise TypeError('can not create %s from %s' % (c1, c2))
+
+        return ctypes.c_int(obj.value)
 
 Enumeration.Data = Data
 
