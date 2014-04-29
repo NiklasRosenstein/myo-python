@@ -366,6 +366,37 @@ class myo_t(base_void_p):
                 myo_t, vibration_type_t, asptr(error_details_t))
         init_func('request_rssi', result_t, myo_t, asptr(error_details_t))
         init_func('training_is_available', ctypes.c_int, myo_t)
+        init_func('training_load_profile', result_t,
+                myo_t, ctypes.c_char_p, asptr(error_details_t))
+
+    def vibrate(self, vibration_type):
+        self._notnull()
+        error = error_details_t()
+        try:
+            return lib.vibrate(self, vibration_type, byref(error))
+        finally:
+            error.raise_on_error()
+
+    def request_rssi(self):
+        self._notnull()
+        error = error_details_t()
+        try:
+            return lib.request_rssi(self, byref(error))
+        finally:
+            error.raise_on_error()
+
+    def training_load_profile(self, filename=None):
+        self._notnull()
+        error = error_details_t()
+        try:
+            return lib.training_load_profile(self, filename, byref(error))
+        finally:
+            error.raise_on_error()
+
+    @property
+    def training_is_available(self):
+        self._notnull()
+        return lib.training_is_available(self) != 0
 
 @initializer
 class training_dataset_t(base_void_p):
@@ -380,8 +411,6 @@ class training_dataset_t(base_void_p):
         init_func('training_train_from_dataset', result_t,
                 training_dataset_t, asptr(error_details_t))
         init_func('training_free_dataset', None, training_dataset_t)
-        init_func('training_load_profile', result_t,
-                myo_t, ctypes.c_char_p, asptr(error_details_t))
         init_func('training_store_profile', result_t,
                 myo_t, ctypes.c_char_p, asptr(error_details_t))
         init_func('training_send_training_data', result_t,
