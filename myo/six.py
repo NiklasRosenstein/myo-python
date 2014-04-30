@@ -34,7 +34,7 @@ if PY2:
         flush = kwargs.pop('flush', False)
 
         for arg in args[:-1]:
-            file_.write(str(args))
+            file_.write(str(arg))
             file_.write(str(sep))
 
         if args:
