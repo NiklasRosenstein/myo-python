@@ -1,7 +1,15 @@
 # Python bindings for the Myo SDK
 
-This is a `ctypes` based Python package wrapping the Myo SDK. It is supposed
-to be Python 2 and 3 compatible. Currently, only Python 2 was tested.
+The Python `myo` package is a ctypes based wrapper for the Myo shared
+libraries. Its goal is to give a complete exposure of the Myo SDK to Python
+developers. 
+
+## Compatibility
+
+This package is compatible with Python 2 and 3. Development is taking
+place with CPython 2.7 and 3.4.
+
+## Example
 
 ```python
 # Copyright (C) 2014  Niklas Rosenstein
@@ -40,6 +48,8 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+
+----
 
 __Copyright (C) 2014  Niklas Rosenstein__, All rights reserved.
 
