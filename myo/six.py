@@ -2,9 +2,12 @@
 # All rights reserved.
 r"""
 myo.six - minimalistic Python 2/3 compatibility layer
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. seealso:: https://pypi.python.org/simple/six
+This is a minimalistic clone of the original *six* module
+with focus on the Python 3 style.
+
+.. seealso:: https://pypi.python.org/pypi/six
 """
 
 import sys
@@ -14,6 +17,7 @@ PY3 = not PY2
 if PY2:
     string_types = (basestring,)
 
+    range = xrange
     def print_(*args, **kwargs):
         r""" print(value, ..., sep=' ', end='\n', file=sys.stdout, flush=False)
 
@@ -41,5 +45,7 @@ if PY2:
 
 else:
     string_types = (str, bytes)
+
+    range = __builtins__['range']
     print_ = __builtins__['print']
 

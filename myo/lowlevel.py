@@ -36,7 +36,7 @@ from ctypes import byref, POINTER as asptr, PYFUNCTYPE as py_functype
 
 from myo import six
 from myo.enum import Enumeration
-from myo.tools import ShortcutAccess, macaddr_to_int
+from myo.tools import ShortcutAccess, MacAddress
 
 
 class _Uninitialized(object):
@@ -309,13 +309,10 @@ class hub_t(base_void_p):
         address or a string. """
 
         self._notnull()
-        if isinstance(mac_address, six.string_types):
-            mac_address = macaddr_to_int(mac_address)
-        elif not isinstance(mac_address, int):
-            raise TypeError('expected string or int for mac_address')
+        mac_address = MacAddress(mac_address)
 
         error = error_details_t()
-        result = lib.pair_by_mac_address(self, mac_address, byref(error))
+        result = lib.pair_by_mac_address(self, mac_address.intval, byref(error))
         error.raise_on_error()
         return result
 
@@ -392,6 +389,11 @@ class myo_t(base_void_p):
         init_func('training_is_available', ctypes.c_int, myo_t)
         init_func('training_load_profile', result_t,
                 myo_t, ctypes.c_char_p, asptr(error_details_t))
+
+    @property
+    def mac_address(self):
+        self._notnull()
+        return MacAddress(lib.get_mac_address(self))
 
     def vibrate(self, vibration_type):
         self._notnull()
@@ -508,18 +510,18 @@ class event_t(base_void_p):
 
     @property
     def orientation(self):
-        self._checktype('get orientation' event_type_t.orientation)
+        self._checktype('get orientation', event_type_t.orientation)
         return [lib.event_get_orientation(self, i) for i in orientation_index_t]
 
     @property
     def acceleration(self):
         self._checktype('get acceleration', event_type_t.orientation)
-        return [lib.event_get_accelerometer(self, i) for i in xrange(3)]
+        return [lib.event_get_accelerometer(self, i) for i in six.range(3)]
 
     @property
     def gyroscope(self):
         self._checktype('get gyroscope', event_type_t.orientation)
-        return [lib.event_get_gyroscope(self, i) for i in xrange(3)]
+        return [lib.event_get_gyroscope(self, i) for i in six.range(3)]
 
     @property
     def pose(self):
@@ -534,7 +536,7 @@ class event_t(base_void_p):
 
 # Callback function for the training_collect_data(). The
 # training_dataset_t.collect_data() expects a slightly different interface.
-training_collect_status_t = c_functype(None, ctypes.c_uint8, ctypes.c_uint8)
+training_collect_status_t = py_functype(None, ctypes.c_uint8, ctypes.c_uint8)
 
 # Callback function type for libmyo_run(). hub_t.run() expects
 # a slightly different interface.
