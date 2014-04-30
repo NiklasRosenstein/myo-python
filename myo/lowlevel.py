@@ -48,9 +48,9 @@ lib = _Uninitialized()
 
 initializers = []
 
-def initializer(type_):
+def is_initializer(type_):
     r""" Decorator for classes that provide an ``_init_lib()``
-    static method which is called when the :mod:`myo._extern`
+    static method which is called when the :mod:`myo.lowlevel`
     module is initialized to initialize the contents of :data:`lib`. """
 
     assert hasattr(type_, '_init_lib')
@@ -190,19 +190,28 @@ class handler_result_t(Enumeration):
 
 
 class base_void_p(ctypes.c_void_p):
+    r""" Base class for the Myo void\* pointer types which implements
+    a few convenience methods to check for nullptr and even automatically
+    raising a MemoryError. """
 
     def _notnull(self):
+        r""" Protected. Raises a RuntimeError when the internal pointer
+        is a nullptr. """
+
         if not self:
             class_name = self.__class__.__name__
             message = '%s object is a nullptr' % class_name
             raise RuntimeError(message)
 
     def _memraise(self):
+        r""" Raises a MemoryError when the internal pointer is a nullptr
+        as a successful memory allocation was expected. """
+
         if not self:
             class_name = self.__class__.__name__
             raise MemoryError('could not allocated %s object' % class_name)
 
-@initializer
+@is_initializer
 class error_details_t(base_void_p):
 
     @staticmethod
@@ -236,7 +245,7 @@ class error_details_t(base_void_p):
         if self:
             raise ResultError(self.kind, self.message)
 
-@initializer
+@is_initializer
 class hub_t(base_void_p):
 
     @staticmethod
@@ -367,7 +376,7 @@ class hub_t(base_void_p):
         if self:
             self.shutdown()
 
-@initializer
+@is_initializer
 class myo_t(base_void_p):
 
     @staticmethod
@@ -409,7 +418,7 @@ class myo_t(base_void_p):
         self._notnull()
         return lib.training_is_available(self) != 0
 
-@initializer
+@is_initializer
 class training_dataset_t(base_void_p):
 
     @staticmethod
@@ -430,7 +439,7 @@ class training_dataset_t(base_void_p):
                 training_dataset_t, ctypes.c_char_p, ctypes.c_char_p,
                 asptr(error_details_t))
 
-@initializer
+@is_initializer
 class event_t(base_void_p):
 
     @staticmethod
@@ -449,11 +458,15 @@ class event_t(base_void_p):
         init_func('event_get_pose', pose_t, event_t)
         init_func('event_get_rssi', ctypes.c_int8, event_t)
 
-    def _checktype(self, *types):
+    def _checktype(self, current_op, *types):
+        r""" Ensures that the event *self* is of one of the specified
+        event *\*types*. Raises an InvalidOperation exception if it is
+        not the case. *current_op* is a string that identifies the
+        attempted operation. """
+
         self._notnull()
 
-        # Check if one of the *types are the same as the
-        # actual event type.
+        # Check if one of the *types are the same as the actual event type.
         found = False
         self_type = self.type
         for type_ in types:
@@ -462,8 +475,8 @@ class event_t(base_void_p):
                 break
 
         if not found:
-            # todo: nice error message
-            raise InvalidOperation()
+            message = 'operation `%s` not allowed in `%s` event'
+            raise InvalidOperation(message % (current_op, self_type.name))
 
     @property
     def type(self):
@@ -482,7 +495,8 @@ class event_t(base_void_p):
 
     @property
     def firmware_version(self):
-        self._checktype(event_type_t.paired, event_type_t.connected)
+        self._checktype('get firmware_version',
+                event_type_t.paired, event_type_t.connected)
         major = lib.event_get_firmware_version(self, firmware_version_t.major)
         minor = lib.event_get_firmware_version(self, firmware_version_t.minor)
         patch = lib.event_get_firmware_version(self, firmware_version_t.patch)
@@ -490,30 +504,36 @@ class event_t(base_void_p):
 
     @property
     def orientation(self):
-        self._checktype(event_type_t.orientation)
+        self._checktype('get orientation' event_type_t.orientation)
         return [lib.event_get_orientation(self, i) for i in orientation_index_t]
 
     @property
     def acceleration(self):
-        self._checktype(event_type_t.orientation)
+        self._checktype('get acceleration', event_type_t.orientation)
         return [lib.event_get_accelerometer(self, i) for i in xrange(3)]
 
     @property
     def gyroscope(self):
-        self._checktype(event_type_t.orientation)
+        self._checktype('get gyroscope', event_type_t.orientation)
         return [lib.event_get_gyroscope(self, i) for i in xrange(3)]
 
     @property
     def pose(self):
-        self._checktype(event_type_t.pose)
+        self._checktype('get pose', event_type_t.pose)
         return lib.event_get_pose(self)
 
     @property
     def rssi(self):
-        self._checktype(event_type_t.rssi)
+        self._checktype('get rssi', event_type_t.rssi)
         return lib.event_get_rssi(self)
 
+
+# Callback function for the training_collect_data(). The
+# training_dataset_t.collect_data() expects a slightly different interface.
 training_collect_status_t = c_functype(None, ctypes.c_uint8, ctypes.c_uint8)
+
+# Callback function type for libmyo_run(). hub_t.run() expects
+# a slightly different interface.
 handler_t = py_functype(ctypes.c_int, ctypes.py_object, event_t)
 
 

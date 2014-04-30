@@ -8,7 +8,7 @@ __version__ = (0, 1, 0)
 # is compatible with.
 sdk_version = 5
 
-from myo import _extern as _myo
+from myo import lowlevel as _myo
 init = _myo.init
 
 import time
