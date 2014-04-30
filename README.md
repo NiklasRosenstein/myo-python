@@ -2,7 +2,7 @@
 
 The Python `myo` package is a ctypes based wrapper for the Myo shared
 libraries. Its goal is to give a complete exposure of the Myo SDK as a
-separate Highlevel and Lowlevel API to Python developers. 
+separate Highlevel and Lowlevel API to Python developers.
 
 ## Compatibility
 
@@ -49,7 +49,8 @@ if __name__ == '__main__':
     main()
 ```
 
-----
+---------------------------------------
 
-__Copyright (C) 2014  Niklas Rosenstein__, All rights reserved.
+__Copyright (C) 2014  Niklas Rosenstein__,
+All rights reserved.
 

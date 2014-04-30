@@ -1,5 +1,10 @@
 # Copyright (C) 2014  Niklas Rosenstein
 # All rights reserved.
+r"""
+myo.lowlevel - Lowlevel Myo SDK interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+"""
 
 __all__ = (
     # enumerations

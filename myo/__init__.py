@@ -1,5 +1,16 @@
 # Copyright (C) 2014  Niklas Rosenstein
 # All rights reserved.
+r"""
+myo - Highlevel Myo SDK Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create a Hub, a DeviceListener and get started!
+
+---------------------------------
+
+__Copyright (C) 2014  Niklas Rosenstein__,
+All rights reserved.
+"""
 
 __author__ = ('Niklas Rosenstein', 'rosensteinniklas@gmail.com')
 __version__ = (0, 1, 0)

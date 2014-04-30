@@ -1,5 +1,10 @@
 # Copyright (C) 2014  Niklas Rosenstein
 # All rights reserved.
+r"""
+myo.enum - Enumeration type-base
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+"""
 
 import ctypes
 from myo import six
