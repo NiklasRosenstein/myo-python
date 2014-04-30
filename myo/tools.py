@@ -39,12 +39,17 @@ class MacAddress(object):
         address. Raises a ValueError if *x* is a negative number or
         exceeds the MAC address range. """
 
-        if value > (16 ** 12 - 1):
+        if x > (16 ** 12 - 1):
             raise ValueError('value exceeds MAC address range')
-        if value < 0:
+        if x < 0:
             raise ValueError('value must not be negative')
 
-        string = hex(value).rjust(12, '0')
+        # todo: convert to the right byte order. the resulting
+        # mac address is reversed on my machine compared to the
+        # mac address displayed by the hello-myo SDK sample.
+        # See issue #7
+
+        string = ('%x' % x).rjust(12, '0')
         assert len(string) == 12
 
         result = ':'.join(''.join(pair) for pair in zip(*[iter(string)]*2))
@@ -56,12 +61,12 @@ class MacAddress(object):
         version. Raises a ValueError if the string is not a valid
         MAC address. """
 
-        addr = addr.replace(':', '')
-        if len(addr) != 12:
+        s = s.replace(':', '')
+        if len(s) != 12:
             raise ValueError('not a valid MAC address')
 
         try:
-            return int(addr, 16)
+            return int(s, 16)
         except ValueError:
             return ValueError('not a valid MAC address')
 
@@ -69,17 +74,20 @@ class MacAddress(object):
         if isinstance(value, MacAddress):
             return value
         else:
-            return cls(value)
+            obj = object.__new__(cls)
+            obj.__init__(value)
+            return obj
 
     def __init__(self, value):
         super(MacAddress, self).__init__()
 
         if isinstance(value, six.string_types):
-            value = MacAddress.string_to_int(value, ':')
-        elif not isinstance(value, int):
-            raise TypeError('expected string or int for MacAddress')
+            value = MacAddress.string_to_int(value)
+        elif not isinstance(value, (int, long)):
+            message = 'expected string or int for MacAddress, got %s'
+            raise TypeError(message % value.__class__.__name__)
 
-        self._string = MacAddress.int_to_string(value, ':')
+        self._string = MacAddress.int_to_string(value)
         self._value = value
 
     def __str__(self):
