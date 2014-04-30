@@ -99,10 +99,6 @@ def init(dest_path=None, add_to_path=True):
         lib_name = 'myo.dylib'
         if arch == 64:
             lib_name += '64'
-    elif os.name == 'posix':
-        lib_name = 'myo.so'
-        if arch == 64:
-            lib_name += '64'
     else:
         raise EnvironmentError('unsupported platform %s' % platform())
 
