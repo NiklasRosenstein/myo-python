@@ -19,15 +19,15 @@ class Listener(myo.DeviceListener):
             print_("You just made the", pose.name, "pose!")
 
 def main():
-    listener = Listener()
     hub = myo.Hub()
-    hub.async_until_stopped(1000, listener)
+    hub.async_until_stopped(1000, Listener())
     hub.pair_any()
 
     try:
         while hub.running:
             time.sleep(0.2)
     except KeyboardInterrupt:
+        print_("Quitting ...")
         hub.stop()
     hub.join()
 

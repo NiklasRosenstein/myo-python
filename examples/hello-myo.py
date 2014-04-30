@@ -20,6 +20,13 @@ def main():
     hub = myo.Hub()
     hub.async_until_stopped(1000, Listener())
     hub.pair_any()
+
+    # Listen to keyboard interrupts.
+    try:
+        while True: myo.time.sleep(0.2)
+    except KeyboardInterrupt:
+        print_("Quitting ...")
+        hub.stop()
     hub.join()
 
 if __name__ == '__main__':
