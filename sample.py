@@ -21,7 +21,7 @@ class Listener(myo.DeviceListener):
 def main():
     listener = Listener()
     hub = myo.Hub()
-    hub.asnyc_till_stopped(1000, listener)
+    hub.async_until_stopped(1000, listener)
     hub.pair_any()
 
     try:

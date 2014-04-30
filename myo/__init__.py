@@ -27,6 +27,7 @@ from myo import lowlevel as _myo
 
 import time
 import threading
+import traceback
 
 init = init_myo = _myo.init
 
@@ -144,7 +145,7 @@ class Hub(object):
         with self._lock:
             self._running = False
 
-    def asnyc_till_stopped(self, interval_ms, listener, lil_sleep=0.01):
+    def async_until_stopped(self, interval_ms, listener, lil_sleep=0.01):
         r""" Runs the Hub with an execution interval of *interval_ms*
         and the specified *listener* until the Hub was stopped. This
         method does not block the main thread. Returns the thread
