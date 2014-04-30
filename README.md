@@ -1,8 +1,8 @@
 # Python bindings for the Myo SDK
 
 The Python `myo` package is a ctypes based wrapper for the Myo shared
-libraries. Its goal is to give a complete exposure of the Myo SDK to Python
-developers. 
+libraries. Its goal is to give a complete exposure of the Myo SDK as a
+separate Highlevel and Lowlevel API to Python developers. 
 
 ## Compatibility
 
