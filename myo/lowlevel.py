@@ -127,6 +127,9 @@ def init(dest_path=None, add_to_path=True):
     for class_ in initializers:
         class_._init_lib()
 
+    # Initialize global library functions.
+    init_func('now', ctypes.c_uint64)
+
 
 class result_t(Enumeration):
 
@@ -542,6 +545,11 @@ class event_t(base_void_p):
     def rssi(self):
         self._checktype('get rssi', event_type_t.rssi)
         return lib.event_get_rssi(self)
+
+def now():
+    r""" Returns the current timestamp. """
+
+    return lib.now()
 
 
 # Callback function for the training_collect_data(). The

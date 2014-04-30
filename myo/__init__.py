@@ -20,7 +20,7 @@ __version__ = (0, 1, 0)
 sdk_version = 5
 
 __all__ = (
-    'init_myo', 'Hub', 'DeviceListener',
+    'init_myo', 'now', 'Hub', 'DeviceListener',
 )
 
 from myo import lowlevel as _myo
@@ -30,6 +30,7 @@ import threading
 import traceback
 
 init = init_myo = _myo.init
+now = _myo.now
 
 class Hub(object):
     r""" Wrapper for a Myo Hub which manages the data processing
