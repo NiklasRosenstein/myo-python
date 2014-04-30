@@ -22,7 +22,7 @@ __all__ = (
     'MyoError', 'ResultError', 'InvalidOperation',
 
     # functions
-    'init',
+    'init', 'is_initialized',
 )
 
 import os
@@ -45,7 +45,7 @@ class _Uninitialized(object):
     it is tried to be used. """
 
     def __getattribute__(self, name):
-        message = 'you forgot to call myo.init(), dum\'ass...'
+        message = 'Call myo.init() before using any SDK contents...'
         raise RuntimeError(message)
 
 lib = _Uninitialized()
@@ -125,6 +125,12 @@ def init(dest_path=None, add_to_path=True):
 
     # Initialize global library functions.
     init_func('now', ctypes.c_uint64)
+
+def is_initialized():
+    r""" Returns True if :meth:`init` has been called successfully
+    already, False if not. """
+
+    return not isinstance(lib, _Uninitialized)
 
 
 class result_t(Enumeration):
@@ -229,6 +235,8 @@ class error_details_t(base_void_p):
             self.value = None
 
     def __repr__(self):
+        if not self:
+            return '<error_details_t nullptr>'
         return '<error_details_t (%s) %r>' % (self.kind.name, self.message)
 
     @property
@@ -268,8 +276,8 @@ class hub_t(base_void_p):
 
     @staticmethod
     def init_hub():
-        r""" Creates a new hub_t object and returns it. Raises an
-        :class:`error` when an error occurred. """
+        r""" Creates a new hub_t object and returns it. Raises a
+        :class:`ResultError` when an error occurred. """
 
         hub = hub_t()
         error = error_details_t()

@@ -20,24 +20,31 @@ __version__ = (0, 1, 0)
 sdk_version = 5
 
 __all__ = (
-    'init_myo', 'now', 'Hub', 'DeviceListener',
+    'init_myo', 'myo_is_initialized', 'now', 'Hub', 'DeviceListener',
 )
 
 from myo import lowlevel as _myo
+from myo.lowlevel import MyoError, ResultError, InvalidOperation
 
 import time
 import threading
 import traceback
 
 init = init_myo = _myo.init
+is_initialized = myo_is_initialized = _myo.is_initialized
 now = _myo.now
 
 class Hub(object):
     r""" Wrapper for a Myo Hub which manages the data processing
-    and event triggering for a Myo device. """
+    and event triggering for a Myo device.
+
+    .. note:: There can only be one Hub instance. The constructor
+    of the :class:`Hub` class will return the existing instance if
+    it has not been shut down since then. """
 
     def __init__(self):
         super(Hub, self).__init__()
+
         self._lock = threading.RLock()
         self._hub = _myo.hub_t.init_hub()
         self._running = False
@@ -215,8 +222,25 @@ class Hub(object):
         self._thread.join(timeout)
         self._thread = None
 
+    def shutdown(self):
+        r""" Shut the hub down. Not a required call. A new instance
+        of the :class:`Hub` constructor will then return a new
+        instance of the class. """
+
+        self._hub.shutdown()
+
 class DeviceListener(object):
-    r""" Interface for listening to data sent from a Myo device. """
+    r""" Interface for listening to data sent from a Myo device.
+    Return False from one of its callback methods to instruct
+    the Hub to stop processing. """
+
+    def on_event(self, event):
+        r""" Called before any of the event callbacks. """
+
+    def on_event_finished(self, event):
+        r""" Called after the respective event callbacks have been
+        invoked. This method is *always* triggered, even if one of
+        the callbacks requested the stop of the Hub. """
 
     def on_pair(self, myo, timestamp):
         pass
@@ -243,39 +267,61 @@ class DeviceListener(object):
         pass
 
 def _invoke_listener(listener, event):
+    r""" Invokes the :class:`DeviceListener` callback methods for
+    the specified :class:`event<myo.lowlevel.event_t>`. If any
+    of the callbacks return False, this function will return False
+    as well. It also issues a warning when a DeviceListener method
+    did not return None or a boolean value.
+
+    :meth:`DeviceListener.on_event_finished` is always called,
+    event when any of the calls in between returned False already. """
 
     myo = event.myo
     timestamp = event.timestamp
-    type_ = event.type
+    def _(name, *args, **kwargs):
+        defaults = kwargs.pop('defaults', True)
+
+        if defaults:
+            args = (myo, timestamp) + tuple(args)
+        method = getattr(listener, name)
+        result = method(*args)
+
+        if result is None:
+            return True
+        elif not isinstance(result, bool):
+            message = 'DeviceListener.%s() must return None or bool'
+            warnings.warn(message % name)
+            result = False
+
+        return result
+
+    kind = event.type
+    result = _('on_event', event, default=False)
 
     if type_ == _myo.event_type_t.paired:
-        result = listener.on_pair(myo, timestamp)
+        result = result and _('on_pair')
 
     elif type_ == _myo.event_type_t.connected:
-        result = listener.on_connect(myo, timestamp)
+        result = result and _('on_connect')
 
     elif type_ == _myo.event_type_t.disconnected:
-        result = listener.on_disconnect(myo, timestamp)
+        result = result and _('on_disconnect')
 
     elif type_ == _myo.event_type_t.pose:
-        result = listener.on_pose(myo, timestamp, event.pose)
+        result = result and _('on_pose', event.pose)
 
     elif type_ == _myo.event_type_t.orientation:
-        result = listener.on_orientation_data(myo, timestamp, event.orientation)
-        result = result and listener.on_accelerometor_data(myo, timestamp, event.acceleration)
-        result = result and listener.on_gyroscope_data(myo, timestamp, event.gyroscope)
+        result = result and _('on_orientation_data', event.orientation)
+        result = result and _('on_accelerometor_data', event.acceleration)
+        result = result and _('on_gyroscope_data', event.gyroscope)
 
     elif type_ == _myo.event_type_t.rssi:
-        result = listener.on_rssi(myo, timestamp, event.rssi)
+        result = result and _('on_rssi', event.rssi)
 
     else:
         raise RuntimeError('invalid event type', type_)
 
-    if result is None:
-        result = True
-    elif not isinstance(result, bool):
-        warnings.warn('DeviceListener must return boolean or None only')
-        result = bool(result)
-
+    if not _('on_event_finished', event, default=False):
+        result = False
     return result
 
