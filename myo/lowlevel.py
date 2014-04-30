@@ -334,7 +334,10 @@ class hub_t(base_void_p):
         *ud* and a :class:`event_t` object. When the *callback* returns
         True, it signals the hub that is should continue to process
         events. If it returns False, it will not continue to process
-        events. """
+        events.
+
+        This function returns True if the run was complete, False
+        if the *callback* caused the Hub to stop by returning False. """
 
         self._notnull()
 
@@ -344,7 +347,8 @@ class hub_t(base_void_p):
             raise TypeError('callback must be callable')
 
         # Wrapper that makes sure the callback returns the
-        # right values,
+        # right values and handles the stop-request of the
+        # listener (when it returns False).
         def wrapper(ud, event):
 
             # Invoke the callback and process the result. It
@@ -367,13 +371,17 @@ class hub_t(base_void_p):
             if result:
                 return handler_result_t.continue_
             else:
+                wrapper.stopped = True
                 return handler_result_t.stop
 
-        # Run the function.
+        # Run the function which will block the current thread.
         error = error_details_t()
         result = lib.run(self, duration_ms, handler_t(wrapper), ud, byref(error))
         error.raise_on_error()
-        return result
+
+        # Return True if the run was complete, meaning the callback
+        # did not request to halt the Hub.
+        return not getattr(wrapper, 'stopped', False)
 
     def __del__(self):
         if self:

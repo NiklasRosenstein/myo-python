@@ -102,13 +102,10 @@ class Hub(object):
             self._assert_running()
             self._hub.pair_adjacent(n)
 
-    def run(self, duration_ms, listener):
-        r""" Run the Hub for *duration_ms* milliseconds. Raises
-        a RuntimeError when an exception occured in the listener the
-        last time the Hub was run. :prop:`stopped` will return False
-        after this method was successfully started.
-
-        This is a blocking method. """
+    def _run(self, duration_ms, listener):
+        r""" Private version of the :meth:`run` method. Does not
+        re-set the :attr:`running` attribute. Used by :meth:`run`
+        and :meth:`async_until_stopped`. """
 
         if not isinstance(listener, DeviceListener):
             raise TypeError('listener must be DeviceListener instance')
@@ -119,9 +116,6 @@ class Hub(object):
             if self._exception:
                 message = 'exception occured in listener, can not rerun'
                 raise RuntimeError(message, self._exception)
-            if self._running:
-                raise RuntimeError('Hub is already running')
-            self._running = True
 
         def callback(listener, event):
             # Stop immediately if the Hub was stopped via the
@@ -140,29 +134,67 @@ class Hub(object):
 
             return False
 
-        # Run the hub.
-        self._hub.run(duration_ms, callback, listener)
+        return self._hub.run(duration_ms, callback, listener)
+
+    def run(self, duration_ms, listener):
+        r""" Run the Hub for *duration_ms* milliseconds. Raises
+        a RuntimeError when an exception occured in the listener the
+        last time the Hub was run. :prop:`stopped` will return False
+        after this method was successfully started.
+
+        This is a blocking method. It returns True when the run
+        was complete, but False when the :class:`DeviceListener`
+        caused the Hub to stop handling the Myo(s) by returning
+        False from one of its callbacks. """
+
+        # Make sure that the hub is not already running. We
+        # can't run it twice.
+        with self._lock:
+            if self._running:
+                raise RuntimeError('Hub is already running')
+            self._running = True
+
+        # Invoke the run process, this will block the current thread-
+        result = self._run(duration_ms, listener)
+
         with self._lock:
             self._running = False
+        return result
 
     def async_until_stopped(self, interval_ms, listener, lil_sleep=0.01):
         r""" Runs the Hub with an execution interval of *interval_ms*
         and the specified *listener* until the Hub was stopped. This
         method does not block the main thread. Returns the thread
-        object that was created. """
+        object that was created.
+
+        The Hub and its thread will stop as soon as :meth:`stop`
+        was called or the :class:`DeviceListener` returned False
+        from one of its callback methods. """
 
         if not isinstance(listener, DeviceListener):
             raise TypeError('listener must be DeviceListener instance')
-        if self.running:
-            raise RuntimeError('Hub is already running')
-        if self._thread and self._thread.is_alive():
-            raise RuntimeError('Thread is still alive, yet the Hub is not '
-                    'running. This is a strange error that should not '
-                    'actually occur ;-)')
 
+        # Make sure the Hub doesn't run already and set
+        # the running flag to True.
+        with self._lock:
+            if self._running:
+                raise RuntimeError('Hub is already running')
+            self._running = True
+
+        # Just for safety reasons, if the worker thread is
+        # still running be the hub is officially not, we did
+        # something wrong.
+        if self._thread and self._thread.is_alive():
+            message = 'Thread is still alive, yet the Hub is not ' \
+                      'running. This is a strange error that should ' \
+                      'not actually occur ;-)'
+            raise RuntimeError(message)
+
+        # Threaded worker function.
         def worker():
             while not self.stopped:
-                self.run(interval_ms, listener)
+                if not self._run(interval_ms, listener):
+                    self.stop()
 
         self._thread = threading.Thread(target=worker)
         self._thread.start()
@@ -174,11 +206,13 @@ class Hub(object):
 
     def join(self, timeout=None):
         r""" If the Hub was run with a thread, it can be joined (waiting
-        blocked) with this method. """
+        blocked) with this method. Can not be called twice without
+        re-starting the Hub. """
 
         if not self._thread:
             raise RuntimeError('Hub is not attached to a thread')
         self._thread.join(timeout)
+        self._thread = None
 
 class DeviceListener(object):
     r""" Interface for listening to data sent from a Myo device. """
@@ -232,6 +266,7 @@ def _invoke_listener(listener, event):
 
     elif type_ == _myo.event_type_t.rssi:
         result = listener.on_rssi(myo, timestamp, event.rssi)
+
     else:
         raise RuntimeError('invalid event type', type_)
 
