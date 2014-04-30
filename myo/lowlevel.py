@@ -354,13 +354,15 @@ class hub_t(base_void_p):
                 result = callback(ud, event)
             except Exception:
                 traceback.print_exc()
-                return handler_result_t.stop
+                result = False
 
+            # Warn the user if the callback did not return a
+            # boolean value (we really only accept that!).
             if not isinstance(result, bool):
                 n1 = callback.__name__
                 n2 = result.__class__.__name__
-                message = 'callback %s() should return bool, got %s' % (n1, n2)
-                warnings.warn(message)
+                message = 'callback %s() should return bool, got %s'
+                warnings.warn(message % (n1, n2))
 
             if result:
                 return handler_result_t.continue_

@@ -236,6 +236,10 @@ def _invoke_listener(listener, event):
         raise RuntimeError('invalid event type', type_)
 
     if result is None:
-        return True
+        result = True
+    elif not isinstance(result, bool):
+        warnings.warn('DeviceListener must return boolean or None only')
+        result = bool(result)
+
     return result
 
