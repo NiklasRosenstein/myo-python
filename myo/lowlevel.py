@@ -27,8 +27,7 @@ import traceback
 from platform import platform
 
 import ctypes
-from ctypes import byref, POINTER as asptr, CFUNCTYPE as c_functype, \
-        PYFUNCTYPE as py_functype
+from ctypes import byref, POINTER as asptr, PYFUNCTYPE as py_functype
 
 from myo import six
 from myo.enum import Enumeration

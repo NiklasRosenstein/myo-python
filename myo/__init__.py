@@ -8,11 +8,16 @@ __version__ = (0, 1, 0)
 # is compatible with.
 sdk_version = 5
 
+__all__ = (
+    'init_myo', 'Hub', 'DeviceListener',
+)
+
 from myo import lowlevel as _myo
-init = _myo.init
 
 import time
 import threading
+
+init = init_myo = _myo.init
 
 class Hub(object):
     r""" Wrapper for a Myo Hub which manages the data processing
@@ -115,7 +120,7 @@ class Hub(object):
 
             # Invoke the listener but catch the event.
             try:
-                return invoke_listener(listener, event)
+                return _invoke_listener(listener, event)
             except Exception as exc:
                 traceback.print_exc()
                 with self._lock:
@@ -190,7 +195,7 @@ class DeviceListener(object):
     def on_rssi(self, myo, timestamp, rssi):
         pass
 
-def invoke_listener(listener, event):
+def _invoke_listener(listener, event):
 
     myo = event.myo
     timestamp = event.timestamp
