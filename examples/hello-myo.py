@@ -8,7 +8,7 @@ from myo.six import print_
 
 class Listener(myo.DeviceListener):
 
-    def on_pair(self, myo, timestamp):
+    def on_connect(self, myo, timestamp):
         print_("Hello Myo", myo.mac_address)
         myo.request_rssi()
 
@@ -18,16 +18,17 @@ class Listener(myo.DeviceListener):
 
 def main():
     hub = myo.Hub()
-    hub.async_until_stopped(1000, Listener())
+    hub.run(1000, Listener())
     hub.pair_any()
 
-    # Listen to keyboard interrupts.
+    # Listen to keyboard interrupts and stop the
+    # hub in that case.
     try:
-        while True: myo.time.sleep(0.2)
+        while hub.running:
+            myo.time.sleep(0.2)
     except KeyboardInterrupt:
         print_("Quitting ...")
-        hub.stop()
-    hub.join()
+        hub.stop(True)
 
 if __name__ == '__main__':
     main()

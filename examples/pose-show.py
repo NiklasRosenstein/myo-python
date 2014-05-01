@@ -1,7 +1,6 @@
 # Copyright (C) 2014  Niklas Rosenstein
 # All rights reserved.
 
-import time
 import myo
 myo.init()
 
@@ -20,12 +19,14 @@ class Listener(myo.DeviceListener):
 
 def main():
     hub = myo.Hub()
-    hub.async_until_stopped(1000, Listener())
+    hub.run(1000, Listener())
     hub.pair_any()
 
+    # Listen to keyboard interrupts and stop the
+    # hub in that case.
     try:
         while hub.running:
-            time.sleep(0.2)
+            myo.time.sleep(0.2)
     except KeyboardInterrupt:
         print_("Quitting ...")
         hub.stop()

@@ -20,19 +20,27 @@ __version__ = (0, 1, 0)
 sdk_version = 5
 
 __all__ = (
-    'init_myo', 'myo_is_initialized', 'now', 'Hub', 'DeviceListener',
+    # High level classes
+    'Hub', 'DeviceListener', 'Event',
+
+    # Initializers and global functions.
+    'init_myo', 'myo_initialized', 'now',
+
+    # Enumerations
+    'event_type', 'pose',
 )
 
 from myo import lowlevel as _myo
+from myo.lowlevel import init, initialized, now
 from myo.lowlevel import MyoError, ResultError, InvalidOperation
+from myo.lowlevel import event_type_t as event_type, pose_t as pose
 
 import time
 import threading
 import traceback
 
-init = init_myo = _myo.init
-is_initialized = myo_is_initialized = _myo.is_initialized
-now = _myo.now
+init_myo = init
+myo_initialized = initialized
 
 class Hub(object):
     r""" Wrapper for a Myo Hub which manages the data processing
@@ -52,6 +60,23 @@ class Hub(object):
         self._exception = None
         self._thread = None
 
+    def __str__(self):
+        parts = ['<Hub ']
+        if not self._hub:
+            parts.append('shut down')
+        else:
+            with self._lock:
+                if self._running:
+                    parts.append('running')
+                if self._stopped:
+                    parts.append('stop-requested')
+
+        return ' ,'.join(parts) + '>'
+
+    def __nonzero__(self):
+        return bool(self._hub)
+    __bool__ = __nonzero__
+
     def _assert_running(self):
         with self._lock:
             if not self._running:
@@ -59,8 +84,20 @@ class Hub(object):
 
     @property
     def running(self):
+        r""" True when the Hub is still running (ie. processing data
+        from Myo(s) in another thread). """
+
         with self._lock:
             return self._running
+
+    @property
+    def stopped(self):
+        r""" True if the Hub has been stopped with a call to
+        :meth:`stop`, False if not. When this is True, the Hub
+        could still be :attr:`running`. """
+
+        with self._lock:
+            return self._stopped
 
     @property
     def exception(self):
@@ -70,23 +107,6 @@ class Hub(object):
 
         with self._lock:
             return self._exception
-
-    def stop(self):
-        r""" Stop the Hub if it is running. Raise a RuntimeError if
-        the Hub is not running. """
-
-        with self._lock:
-            if not self._running:
-                raise RuntimeError('Hub is not running')
-            self._stopped = True
-
-    @property
-    def stopped(self):
-        r""" Returns True if the Hub has been instructed to stop,
-        False if not. """
-
-        with self._lock:
-            return self._stopped
 
     def clear_exception(self):
         r""" If an exception is set, the Hub can not be re-run. This
@@ -144,40 +164,19 @@ class Hub(object):
 
         return self._hub.run(duration_ms, callback, listener)
 
-    def run(self, duration_ms, listener):
-        r""" Run the Hub for *duration_ms* milliseconds. Raises
-        a RuntimeError when an exception occured in the listener the
-        last time the Hub was run. :prop:`stopped` will return False
-        after this method was successfully started.
-
-        This is a blocking method. It returns True when the run
-        was complete, but False when the :class:`DeviceListener`
-        caused the Hub to stop handling the Myo(s) by returning
-        False from one of its callbacks. """
-
-        # Make sure that the hub is not already running. We
-        # can't run it twice.
-        with self._lock:
-            if self._running:
-                raise RuntimeError('Hub is already running')
-            self._running = True
-
-        # Invoke the run process, this will block the current thread-
-        result = self._run(duration_ms, listener)
-
-        with self._lock:
-            self._running = False
-        return result
-
-    def async_until_stopped(self, interval_ms, listener, lil_sleep=0.01):
-        r""" Runs the Hub with an execution interval of *interval_ms*
+    def run(self, interval_ms, listener, lil_sleep=0.01):
+        r""" Run the Hub with an execution interval of *interval_ms*
         and the specified *listener* until the Hub was stopped. This
         method does not block the main thread. Returns the thread
         object that was created.
 
         The Hub and its thread will stop as soon as :meth:`stop`
-        was called or the :class:`DeviceListener` returned False
-        from one of its callback methods. """
+        was called or the :class:`DeviceListener` returns False
+        from one of its callback methods.
+
+        *lil_sleep* specifies a number of seconds to sleep after
+        the Hub has been started. This will allow the Hub thread
+        to start before anything else is called."""
 
         if not isinstance(listener, DeviceListener):
             raise TypeError('listener must be DeviceListener instance')
@@ -189,43 +188,63 @@ class Hub(object):
                 raise RuntimeError('Hub is already running')
             self._running = True
 
-        # Just for safety reasons, if the worker thread is
-        # still running be the hub is officially not, we did
-        # something wrong.
-        if self._thread and self._thread.is_alive():
-            message = 'Thread is still alive, yet the Hub is not ' \
-                      'running. This is a strange error that should ' \
-                      'not actually occur ;-)'
-            raise RuntimeError(message)
-
-        # Threaded worker function.
+        # This is the worker function that is running in
+        # a new thread.
         def worker():
             while not self.stopped:
                 if not self._run(interval_ms, listener):
                     self.stop()
 
-        self._thread = threading.Thread(target=worker)
-        self._thread.start()
+            with self._lock:
+                self._running = False
+
+        with self._lock:
+            self._thread = threading.Thread(target=worker)
+            self._thread.start()
 
         # Little sleeping so we can immediately call pair_any()
         # or variants.
         if lil_sleep:
             time.sleep(lil_sleep)
 
+    def stop(self, join=False):
+        r""" Request the Stop of the Hub when it is running. When
+        *join* is True, this function will block the current thread
+        until the Hub is not :attr:`running` anymore. """
+
+        with self._lock:
+            self._stopped = True
+        if join: self.join()
+
     def join(self, timeout=None):
         r""" If the Hub was run with a thread, it can be joined (waiting
-        blocked) with this method. Can not be called twice without
-        re-starting the Hub. """
+        blocked) with this method. If the Hub was not started within a
+        thread, this method will do nothing. """
 
-        if not self._thread:
-            raise RuntimeError('Hub is not attached to a thread')
-        self._thread.join(timeout)
-        self._thread = None
+        with self._lock:
+            if not self._thread:
+                return
+            if not self._thread.is_alive():
+                self._thread = None
+                return
+            thread = self._thread
+
+        thread.join(timeout)
+        with self._lock:
+            if not thread.is_alive():
+                self._thread = None
 
     def shutdown(self):
-        r""" Shut the hub down. Not a required call. A new instance
-        of the :class:`Hub` constructor will then return a new
-        instance of the class. """
+        r""" Shut the hub down. Will happen automatically when
+        the Hub is being deleted. This method will cause the Hub
+        to stop if it was still running. """
+
+        self.stop()
+        try:
+            self.join()
+        except RuntimeError:
+            message = 'Hub.shutdown() must not be called from DeviceListener'
+            raise RuntimeError(message)
 
         self._hub.shutdown()
 
@@ -266,6 +285,35 @@ class DeviceListener(object):
     def on_rssi(self, myo, timestamp, rssi):
         pass
 
+class Event(object):
+    r""" Copy of a Myo SDK event object that can be accessed even
+    after the event has been destroyed. Must be constructed with
+    a :class:`myo.lowlevel.event_t` object.
+
+    This type of object is passed to :meth:`DeviceListener.on_event`. """
+
+    def __init__(self, low_event):
+        if not isinstance(low_event, _myo.event_t):
+            raise TypeError('expected event_t object')
+        super(Event, self).__init__()
+        self.type = low_event.type
+        self.myo = low_event.myo
+        self.timestamp = low_event.timestamp
+
+        if self.type in [event_type.paired, event_type.connected]:
+            self.firmware_version = low_event.firmware_version
+        elif self.type == event_type.orientation:
+            self.orientation = low_event.orientation
+            self.acceleration = low_event.acceleration
+            self.gyroscope = low_event.gyroscope
+        elif self.type == event_type.pose:
+            self.pose = low_event.pose
+        elif self.type == event_type.rssi:
+            self.rssi = low_event.rssi
+
+    def __str__(self):
+        return '<Event %s>' % self.type
+
 def _invoke_listener(listener, event):
     r""" Invokes the :class:`DeviceListener` callback methods for
     the specified :class:`event<myo.lowlevel.event_t>`. If any
@@ -276,10 +324,13 @@ def _invoke_listener(listener, event):
     :meth:`DeviceListener.on_event_finished` is always called,
     event when any of the calls in between returned False already. """
 
+    event = Event(event)
     myo = event.myo
     timestamp = event.timestamp
     def _(name, *args, **kwargs):
         defaults = kwargs.pop('defaults', True)
+        if kwargs:
+            raise TypeError('unexpected arguments')
 
         if defaults:
             args = (myo, timestamp) + tuple(args)
@@ -296,32 +347,32 @@ def _invoke_listener(listener, event):
         return result
 
     kind = event.type
-    result = _('on_event', event, default=False)
+    result = _('on_event', event, defaults=False)
 
-    if type_ == _myo.event_type_t.paired:
+    if kind == _myo.event_type_t.paired:
         result = result and _('on_pair')
 
-    elif type_ == _myo.event_type_t.connected:
+    elif kind == _myo.event_type_t.connected:
         result = result and _('on_connect')
 
-    elif type_ == _myo.event_type_t.disconnected:
+    elif kind == _myo.event_type_t.disconnected:
         result = result and _('on_disconnect')
 
-    elif type_ == _myo.event_type_t.pose:
+    elif kind == _myo.event_type_t.pose:
         result = result and _('on_pose', event.pose)
 
-    elif type_ == _myo.event_type_t.orientation:
+    elif kind == _myo.event_type_t.orientation:
         result = result and _('on_orientation_data', event.orientation)
         result = result and _('on_accelerometor_data', event.acceleration)
         result = result and _('on_gyroscope_data', event.gyroscope)
 
-    elif type_ == _myo.event_type_t.rssi:
+    elif kind == _myo.event_type_t.rssi:
         result = result and _('on_rssi', event.rssi)
 
     else:
-        raise RuntimeError('invalid event type', type_)
+        raise RuntimeError('invalid event type', kind)
 
-    if not _('on_event_finished', event, default=False):
+    if not _('on_event_finished', event, defaults=False):
         result = False
     return result
 

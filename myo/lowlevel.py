@@ -22,7 +22,7 @@ __all__ = (
     'MyoError', 'ResultError', 'InvalidOperation',
 
     # functions
-    'init', 'is_initialized',
+    'init', 'initialized', 'now',
 )
 
 import os
@@ -36,7 +36,8 @@ from ctypes import byref, POINTER as asptr, PYFUNCTYPE as py_functype
 
 from myo import six
 from myo.enum import Enumeration
-from myo.tools import ShortcutAccess, MacAddress
+from myo.tools import ShortcutAccess, MacAddress, reraise
+from myo.platform import platform
 
 
 class _Uninitialized(object):
@@ -73,9 +74,10 @@ def init_func(name, restype, *argtypes):
     func.restype = restype
     func.argtypes = argtypes
 
-def init(dest_path=None, add_to_path=True):
+
+def init(dist_path=None, add_to_path=True):
     r""" Determines which myo shared library to load and does so.
-    If *dest_path* is given, it must be the parent directory of
+    If *dist_path* is given, it must be the parent directory of
     the myo library to load. When *add_to_path* is True in that
     case, the ``PATH`` environment variable will be extended by
     that path. """
@@ -93,31 +95,43 @@ def init(dest_path=None, add_to_path=True):
 
     # Determine the name which can be used to load the library
     # based on the current platform.
-    if os.name == 'nt' or platform().startswith('Windows'):
+    if platform == 'Windows':
         lib_name = 'myo%d.dll' % arch
-    elif platform().startswith('Darwin'):
+    elif platform == 'Darwin':
         lib_name = 'myo.dylib'
         if arch == 64:
             lib_name += '64'
     else:
-        raise EnvironmentError('unsupported platform %s' % platform())
+        raise EnvironmentError('unsupported platform %s' % platform)
 
-    # Load the library from an absolute path if *dest_path*
+    # Load the library from an absolute path if *dist_path*
     # is specified.
-    if dest_path:
-        dest_path = os.path.normpath(os.path.abspath(dest_path))
+    if dist_path:
+        dist_path = os.path.normpath(os.path.abspath(dist_path))
 
         # Extend the PATH variable if that is desired.
         if add_to_path:
             PATH = os.environ['PATH']
-            os.environ['PATH'] = os.pathsep.join([dest_path, PATH])
+            os.environ['PATH'] = os.pathsep.join([dist_path, PATH])
 
         # Or create an absolute filename.
         else:
-            lib_name = os.path.join(dest_path, lib_name)
+            lib_name = os.path.join(dist_path, lib_name)
 
     # Load the library and initialize the required contents.
-    lib = ctypes.cdll.LoadLibrary(lib_name)
+    try:
+        lib = ctypes.cdll.LoadLibrary(lib_name)
+    except OSError:
+        exc_info = sys.exc_info()
+
+        # Try again with the local distribution, if there is one.
+        try:
+            from myo.localdist import dist_path
+            return init(dist_path, add_to_path)
+        except ImportError:
+            reraise(exc_info)
+            return
+
     lib = ShortcutAccess(lib, 'libmyo_')
 
     for class_ in initializers:
@@ -126,7 +140,7 @@ def init(dest_path=None, add_to_path=True):
     # Initialize global library functions.
     init_func('now', ctypes.c_uint64)
 
-def is_initialized():
+def initialized():
     r""" Returns True if :meth:`init` has been called successfully
     already, False if not. """
 
@@ -375,6 +389,10 @@ class hub_t(base_void_p):
                 message = 'callback %s() should return bool, got %s'
                 warnings.warn(message % (n1, n2))
 
+            # Invalidate the event object completely. It must
+            # not be used after this function has ended.
+            event.value = 0
+
             if result:
                 return handler_result_t.continue_
             else:
@@ -520,10 +538,10 @@ class event_t(base_void_p):
     def firmware_version(self):
         self._checktype('get firmware_version',
                 event_type_t.paired, event_type_t.connected)
-        major = lib.event_get_firmware_version(self, firmware_version_t.major)
-        minor = lib.event_get_firmware_version(self, firmware_version_t.minor)
-        patch = lib.event_get_firmware_version(self, firmware_version_t.patch)
-        return (mahor, minor, patch)
+        major = lib.event_get_firmware_version(self, version_component_t.major)
+        minor = lib.event_get_firmware_version(self, version_component_t.minor)
+        patch = lib.event_get_firmware_version(self, version_component_t.patch)
+        return (major, minor, patch)
 
     @property
     def orientation(self):
