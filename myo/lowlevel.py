@@ -127,10 +127,11 @@ def init(dist_path=None, add_to_path=True):
         # Try again with the local distribution, if there is one.
         try:
             from myo.localdist import dist_path
-            return init(dist_path, add_to_path)
-        except ImportError:
+        except ImportError as exc:
             reraise(exc_info)
             return
+
+        return init(dist_path, add_to_path)
 
     lib = ShortcutAccess(lib, 'libmyo_')
 
