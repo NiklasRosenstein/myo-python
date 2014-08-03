@@ -9,17 +9,44 @@ from myo.six import print_
 class Listener(myo.DeviceListener):
 
     def on_connect(self, myo, timestamp):
-        print_("Hello Myo", myo.mac_address)
+        print 'on_connect'
+        #print_("Hello Myo", myo.mac_address)
         myo.request_rssi()
 
     def on_rssi(self, myo, timestamp, rssi):
         print_("RSSI:", rssi)
         return False # Stop the Hub
+    def on_event(self, event):
+        r""" Called before any of the event callbacks. """
+
+    def on_event_finished(self, event):
+        print 'on_event_finished'
+        r""" Called after the respective event callbacks have been
+        invoked. This method is *always* triggered, even if one of
+        the callbacks requested the stop of the Hub. """
+
+    def on_pair(self, myo, timestamp):
+        print 'on_pair'
+
+    def on_disconnect(self, myo, timestamp):
+        print 'on_disconnect'
+
+    def on_pose(self, myo, timestamp, pose):
+        print 'on_pose', pose
+
+    def on_orientation_data(self, myo, timestamp, orientation):
+        print 'on_orientation_data'
+
+    def on_accelerometor_data(self, myo, timestamp, acceleration):
+        print 'on_accelerometor_data'
+
+    def on_gyroscope_data(self, myo, timestamp, gyroscope):
+        print 'on_gyroscope_data'
 
 def main():
     hub = myo.Hub()
     hub.run(1000, Listener())
-    hub.pair_any()
+    #hub.pair_any()
 
     # Listen to keyboard interrupts and stop the
     # hub in that case.

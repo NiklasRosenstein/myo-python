@@ -139,7 +139,7 @@ def init(dist_path=None, add_to_path=True):
         class_._init_lib()
 
     # Initialize global library functions.
-    init_func('now', ctypes.c_uint64)
+    #init_func('now', ctypes.c_uint64)
 
 def initialized():
     r""" Returns True if :meth:`init` has been called successfully
@@ -233,7 +233,7 @@ class base_void_p(ctypes.c_void_p):
 
         if not self:
             class_name = self.__class__.__name__
-            raise MemoryError('could not allocated %s object' % class_name)
+            raise MemoryError('could not allocate %s object' % class_name)
 
 @is_initializer
 class error_details_t(base_void_p):
@@ -280,12 +280,12 @@ class hub_t(base_void_p):
                 asptr(hub_t), asptr(error_details_t))
         init_func('shutdown_hub', result_t,
                 hub_t, asptr(error_details_t))
-        init_func('pair_any', result_t,
-                hub_t, ctypes.c_uint, asptr(error_details_t))
-        init_func('pair_by_mac_address', result_t,
-                hub_t, ctypes.c_uint64, asptr(error_details_t))
-        init_func('pair_adjacent', result_t,
-                hub_t, ctypes.c_uint, asptr(error_details_t))
+#         init_func('pair_any', result_t,
+#                 hub_t, ctypes.c_uint, asptr(error_details_t))
+#         init_func('pair_by_mac_address', result_t,
+#                 hub_t, ctypes.c_uint64, asptr(error_details_t))
+#         init_func('pair_adjacent', result_t,
+#                 hub_t, ctypes.c_uint, asptr(error_details_t))
         init_func('run', result_t,
                 hub_t, ctypes.c_uint, handler_t, ctypes.py_object, error_details_t)
 
@@ -418,13 +418,13 @@ class myo_t(base_void_p):
 
     @staticmethod
     def _init_lib():
-        init_func('get_mac_address', ctypes.c_uint64, myo_t)
+        #init_func('get_mac_address', ctypes.c_uint64, myo_t)
         init_func('vibrate', result_t,
                 myo_t, vibration_type_t, asptr(error_details_t))
         init_func('request_rssi', result_t, myo_t, asptr(error_details_t))
-        init_func('training_is_available', ctypes.c_int, myo_t)
-        init_func('training_load_profile', result_t,
-                myo_t, ctypes.c_char_p, asptr(error_details_t))
+        #init_func('training_is_available', ctypes.c_int, myo_t)
+        #init_func('training_load_profile', result_t,
+        #        myo_t, ctypes.c_char_p, asptr(error_details_t))
 
     @property
     def mac_address(self):
@@ -465,21 +465,22 @@ class training_dataset_t(base_void_p):
 
     @staticmethod
     def _init_lib():
-        init_func('training_create_dataset', result_t,
-                myo_t, asptr(training_dataset_t), asptr(error_details_t))
-        init_func('training_collect_data', result_t,
-                training_dataset_t, pose_t, training_collect_status_t,
-                base_void_p, asptr(error_details_t))
-        init_func('training_train_from_dataset', result_t,
-                training_dataset_t, asptr(error_details_t))
-        init_func('training_free_dataset', None, training_dataset_t)
-        init_func('training_store_profile', result_t,
-                myo_t, ctypes.c_char_p, asptr(error_details_t))
-        init_func('training_send_training_data', result_t,
-                training_dataset_t, asptr(error_details_t))
-        init_func('training_annotate_training_data', result_t,
-                training_dataset_t, ctypes.c_char_p, ctypes.c_char_p,
-                asptr(error_details_t))
+#         init_func('training_create_dataset', result_t,
+#                 myo_t, asptr(training_dataset_t), asptr(error_details_t))
+#         init_func('training_collect_data', result_t,
+#                 training_dataset_t, pose_t, training_collect_status_t,
+#                 base_void_p, asptr(error_details_t))
+#         init_func('training_train_from_dataset', result_t,
+#                 training_dataset_t, asptr(error_details_t))
+#         init_func('training_free_dataset', None, training_dataset_t)
+#         init_func('training_store_profile', result_t,
+#                 myo_t, ctypes.c_char_p, asptr(error_details_t))
+#         init_func('training_send_training_data', result_t,
+#                 training_dataset_t, asptr(error_details_t))
+#         init_func('training_annotate_training_data', result_t,
+#                 training_dataset_t, ctypes.c_char_p, ctypes.c_char_p,
+#                 asptr(error_details_t))
+        pass
 
 @is_initializer
 class event_t(base_void_p):

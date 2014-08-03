@@ -370,7 +370,8 @@ def _invoke_listener(listener, event):
         result = result and _('on_rssi', event.rssi)
 
     else:
-        raise RuntimeError('invalid event type', kind)
+        pass
+        #raise RuntimeError('invalid event type', kind)
 
     if not _('on_event_finished', event, defaults=False):
         result = False
