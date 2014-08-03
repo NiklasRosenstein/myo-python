@@ -11,3 +11,5 @@ myo/dist/
 # Executables/Apps (eg. from the Myo SDK)
 *.exe
 *.app
+.project
+.pydevproject
