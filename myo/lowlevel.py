@@ -12,17 +12,20 @@ __all__ = (
     'version_component_t', 'orientation_index_t', 'handler_result_t',
 
     # structure wrappers
-    'error_details_t', 'hub_t', 'myo_t', 'training_dataset_t',
+    'error_details_t', 'hub_t', 'myo_t',
+    # REMOVED IN 0.8.6.2 'training_dataset_t',
     'event_t',
 
     # callback types
-    'training_collect_status_t', 'handler_t',
+    # REMOVED IN 0.8.6.2 'training_collect_status_t',
+    'handler_t',
 
     # exceptions
     'MyoError', 'ResultError', 'InvalidOperation',
 
     # functions
-    'init', 'initialized', 'now',
+    'init', 'initialized', 
+    # REMOVED IN 0.8.6.2 'now',
 )
 
 import os
@@ -139,7 +142,7 @@ def init(dist_path=None, add_to_path=True):
         class_._init_lib()
 
     # Initialize global library functions.
-    init_func('now', ctypes.c_uint64)
+    # REMOVED IN 0.8.6.2 init_func('now', ctypes.c_uint64)
 
 def initialized():
     r""" Returns True if :meth:`init` has been called successfully
@@ -167,24 +170,27 @@ class vibration_type_t(Enumeration):
 
 class pose_t(Enumeration):
 
-    none = 0
+    rest = 0
     fist = 1
     wave_in = 2
     wave_out = 3
     fingers_spread = 4
-    twist_in = 5
+    reserved1 = 5
+    thumb_to_pinky = 6
 
     __fallback__ = -1
-    num_poses = Enumeration.Data(6)
+    num_poses = Enumeration.Data(7)
 
 class event_type_t(Enumeration):
 
     paired = 0
     connected = 1
     disconnected = 2
-    orientation = 3
-    pose = 4
-    rssi = 5
+    arm_recognized = 3
+    arm_lost = 4
+    orientation = 5
+    pose = 6
+    rssi = 7
 
     __fallback__ = -1
 
@@ -233,7 +239,7 @@ class base_void_p(ctypes.c_void_p):
 
         if not self:
             class_name = self.__class__.__name__
-            raise MemoryError('could not allocated %s object' % class_name)
+            raise MemoryError('could not allocate %s object' % class_name)
 
 @is_initializer
 class error_details_t(base_void_p):
@@ -280,12 +286,13 @@ class hub_t(base_void_p):
                 asptr(hub_t), asptr(error_details_t))
         init_func('shutdown_hub', result_t,
                 hub_t, asptr(error_details_t))
-        init_func('pair_any', result_t,
-                hub_t, ctypes.c_uint, asptr(error_details_t))
-        init_func('pair_by_mac_address', result_t,
-                hub_t, ctypes.c_uint64, asptr(error_details_t))
-        init_func('pair_adjacent', result_t,
-                hub_t, ctypes.c_uint, asptr(error_details_t))
+# REMOVED IN 0.8.6.2
+#         init_func('pair_any', result_t,
+#                 hub_t, ctypes.c_uint, asptr(error_details_t))
+#         init_func('pair_by_mac_address', result_t,
+#                 hub_t, ctypes.c_uint64, asptr(error_details_t))
+#         init_func('pair_adjacent', result_t,
+#                 hub_t, ctypes.c_uint, asptr(error_details_t))
         init_func('run', result_t,
                 hub_t, ctypes.c_uint, handler_t, ctypes.py_object, error_details_t)
 
@@ -325,6 +332,7 @@ class hub_t(base_void_p):
         error.raise_on_error()
         return result
 
+    @DeprecationWarning
     def pair_by_mac_address(self, mac_address):
         r""" Pairs with a Myo of a specific *mac_address*. The
         address can be either an integer representing the mac
@@ -338,6 +346,7 @@ class hub_t(base_void_p):
         error.raise_on_error()
         return result
 
+    @DeprecationWarning
     def pair_adjacent(self, n=1):
         r""" Pair with *n* adjacent devices. """
 
@@ -418,13 +427,15 @@ class myo_t(base_void_p):
 
     @staticmethod
     def _init_lib():
-        init_func('get_mac_address', ctypes.c_uint64, myo_t)
+        # REMOVED IN 0.8.6.2
+        #init_func('get_mac_address', ctypes.c_uint64, myo_t)
         init_func('vibrate', result_t,
                 myo_t, vibration_type_t, asptr(error_details_t))
         init_func('request_rssi', result_t, myo_t, asptr(error_details_t))
-        init_func('training_is_available', ctypes.c_int, myo_t)
-        init_func('training_load_profile', result_t,
-                myo_t, ctypes.c_char_p, asptr(error_details_t))
+        # REMOVED IN 0.8.6.2
+        #init_func('training_is_available', ctypes.c_int, myo_t)
+        #init_func('training_load_profile', result_t,
+        #        myo_t, ctypes.c_char_p, asptr(error_details_t))
 
     @property
     def mac_address(self):
@@ -460,26 +471,29 @@ class myo_t(base_void_p):
         self._notnull()
         return lib.training_is_available(self) != 0
 
+@DeprecationWarning
 @is_initializer
 class training_dataset_t(base_void_p):
 
     @staticmethod
     def _init_lib():
-        init_func('training_create_dataset', result_t,
-                myo_t, asptr(training_dataset_t), asptr(error_details_t))
-        init_func('training_collect_data', result_t,
-                training_dataset_t, pose_t, training_collect_status_t,
-                base_void_p, asptr(error_details_t))
-        init_func('training_train_from_dataset', result_t,
-                training_dataset_t, asptr(error_details_t))
-        init_func('training_free_dataset', None, training_dataset_t)
-        init_func('training_store_profile', result_t,
-                myo_t, ctypes.c_char_p, asptr(error_details_t))
-        init_func('training_send_training_data', result_t,
-                training_dataset_t, asptr(error_details_t))
-        init_func('training_annotate_training_data', result_t,
-                training_dataset_t, ctypes.c_char_p, ctypes.c_char_p,
-                asptr(error_details_t))
+# REMOVED IN 0.8.6.2
+#         init_func('training_create_dataset', result_t,
+#                 myo_t, asptr(training_dataset_t), asptr(error_details_t))
+#         init_func('training_collect_data', result_t,
+#                 training_dataset_t, pose_t, training_collect_status_t,
+#                 base_void_p, asptr(error_details_t))
+#         init_func('training_train_from_dataset', result_t,
+#                 training_dataset_t, asptr(error_details_t))
+#         init_func('training_free_dataset', None, training_dataset_t)
+#         init_func('training_store_profile', result_t,
+#                 myo_t, ctypes.c_char_p, asptr(error_details_t))
+#         init_func('training_send_training_data', result_t,
+#                 training_dataset_t, asptr(error_details_t))
+#         init_func('training_annotate_training_data', result_t,
+#                 training_dataset_t, ctypes.c_char_p, ctypes.c_char_p,
+#                 asptr(error_details_t))
+        pass
 
 @is_initializer
 class event_t(base_void_p):
