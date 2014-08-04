@@ -22,7 +22,6 @@ class Listener(myo.DeviceListener):
         r""" Called before any of the event callbacks. """
 
     def on_event_finished(self, event):
-        print 'on_event_finished'
         r""" Called after the respective event callbacks have been
         invoked. This method is *always* triggered, even if one of
         the callbacks requested the stop of the Hub. """
@@ -37,13 +36,13 @@ class Listener(myo.DeviceListener):
         print 'on_pose', pose
 
     def on_orientation_data(self, myo, timestamp, orientation):
-        print 'on_orientation_data'
+        pass
 
     def on_accelerometor_data(self, myo, timestamp, acceleration):
-        print 'on_accelerometor_data'
+        pass
 
     def on_gyroscope_data(self, myo, timestamp, gyroscope):
-        print 'on_gyroscope_data'
+        pass
 
 def main():
     try:
