@@ -12,7 +12,6 @@ class Listener(myo.DeviceListener):
 
     def on_connect(self, myo, timestamp):
         print 'on_connect'
-        #print_("Hello Myo", myo.mac_address)
         myo.request_rssi()
 
     def on_rssi(self, myo, timestamp, rssi):
@@ -48,7 +47,6 @@ def main():
     try:
         hub = myo.Hub()
         hub.run(1000, Listener())
-        #hub.pair_any()
     except:
         sys.stderr.write('Make sure that Myo Connect is running and a Myo is paired.\n')
         raise

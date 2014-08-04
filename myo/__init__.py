@@ -369,9 +369,11 @@ def _invoke_listener(listener, event):
     elif kind == _myo.event_type_t.rssi:
         result = result and _('on_rssi', event.rssi)
 
+    elif kind == _myo.event_type_t.arm_lost or kind == _myo.event_type_t.arm_recognized:
+        print(kind)
+
     else:
-        pass
-        #raise RuntimeError('invalid event type', kind)
+        print('invalid event type: %s' % kind)
 
     if not _('on_event_finished', event, defaults=False):
         result = False
