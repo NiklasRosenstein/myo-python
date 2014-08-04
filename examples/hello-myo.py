@@ -2,11 +2,13 @@
 # All rights reserved.
 
 import myo
+import sys
 myo.init()
 
 from myo.six import print_
 
 class Listener(myo.DeviceListener):
+    #return False from any method to stop the Hub
 
     def on_connect(self, myo, timestamp):
         print 'on_connect'
@@ -15,7 +17,7 @@ class Listener(myo.DeviceListener):
 
     def on_rssi(self, myo, timestamp, rssi):
         print_("RSSI:", rssi)
-        return False # Stop the Hub
+
     def on_event(self, event):
         r""" Called before any of the event callbacks. """
 
@@ -44,9 +46,13 @@ class Listener(myo.DeviceListener):
         print 'on_gyroscope_data'
 
 def main():
-    hub = myo.Hub()
-    hub.run(1000, Listener())
-    #hub.pair_any()
+    try:
+        hub = myo.Hub()
+        hub.run(1000, Listener())
+        #hub.pair_any()
+    except:
+        sys.stderr.write('Make sure that Myo Connect is running and a Myo is paired.\n')
+        raise
 
     # Listen to keyboard interrupts and stop the
     # hub in that case.
