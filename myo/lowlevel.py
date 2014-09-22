@@ -184,13 +184,15 @@ class pose_t(Enumeration):
 class event_type_t(Enumeration):
 
     paired = 0
-    connected = 1
-    disconnected = 2
-    arm_recognized = 3
-    arm_lost = 4
-    orientation = 5
-    pose = 6
-    rssi = 7
+    # beta 3
+    unpaired = 1
+    connected = 2
+    disconnected = 3
+    arm_recognized = 4
+    arm_lost = 5
+    orientation = 6
+    pose = 7
+    rssi = 8
 
     __fallback__ = -1
 
