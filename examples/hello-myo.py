@@ -11,7 +11,7 @@ class Listener(myo.DeviceListener):
     #return False from any method to stop the Hub
 
     def on_connect(self, myo, timestamp):
-        print 'on_connect'
+        print_('on_connect')
         myo.request_rssi()
 
     def on_rssi(self, myo, timestamp, rssi):
@@ -26,13 +26,13 @@ class Listener(myo.DeviceListener):
         the callbacks requested the stop of the Hub. """
 
     def on_pair(self, myo, timestamp):
-        print 'on_pair'
+        print_('on_pair')
 
     def on_disconnect(self, myo, timestamp):
-        print 'on_disconnect'
+        print_('on_disconnect')
 
     def on_pose(self, myo, timestamp, pose):
-        print 'on_pose', pose
+        print_('on_pose', pose)
 
     def on_orientation_data(self, myo, timestamp, orientation):
         pass
