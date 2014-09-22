@@ -2,7 +2,6 @@
 # All rights reserved.
 
 import myo
-import sys
 myo.init()
 
 from myo.six import print_
@@ -11,7 +10,8 @@ class Listener(myo.DeviceListener):
     #return False from any method to stop the Hub
 
     def on_connect(self, myo, timestamp):
-        print_('on_connect')
+        print_("Connected to Myo")
+        myo.vibrate('short')
         myo.request_rssi()
 
     def on_rssi(self, myo, timestamp, rssi):
