@@ -124,7 +124,7 @@ def init(dist_path=None, add_to_path=True):
     # Load the library and initialize the required contents.
     try:
         lib = ctypes.cdll.LoadLibrary(lib_name)
-    except OSError:
+    except (OSError, WindowsError):
         exc_info = sys.exc_info()
 
         # Try again with the local distribution, if there is one.
@@ -239,7 +239,7 @@ class base_void_p(ctypes.c_void_p):
 
         if not self:
             class_name = self.__class__.__name__
-            raise MemoryError('could not allocate %s object' % class_name)
+            raise MemoryError('Could not allocate %s object. Make sure that Myo Connect is running and a Myo is paired.' % class_name)
 
 @is_initializer
 class error_details_t(base_void_p):

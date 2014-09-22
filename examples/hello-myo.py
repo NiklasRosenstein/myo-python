@@ -44,12 +44,8 @@ class Listener(myo.DeviceListener):
         pass
 
 def main():
-    try:
-        hub = myo.Hub()
-        hub.run(1000, Listener())
-    except:
-        sys.stderr.write('Make sure that Myo Connect is running and a Myo is paired.\n')
-        raise
+    hub = myo.Hub()
+    hub.run(1000, Listener())
 
     # Listen to keyboard interrupts and stop the
     # hub in that case.
