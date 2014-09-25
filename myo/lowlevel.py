@@ -101,9 +101,9 @@ def init(dist_path=None, add_to_path=True):
     if platform == 'Windows':
         lib_name = 'myo%d.dll' % arch
     elif platform == 'Darwin':
-        lib_name = 'myo.dylib'
-        if arch == 64:
-            lib_name += '64'
+        # lib name is just 'myo' as per:
+        # https://developer.thalmic.com/forums/topic/541/?page=2
+        lib_name = 'myo'
     else:
         raise EnvironmentError('unsupported platform %s' % platform)
 
