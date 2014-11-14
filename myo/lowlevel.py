@@ -124,7 +124,7 @@ def init(dist_path=None, add_to_path=True):
     # Load the library and initialize the required contents.
     try:
         lib = ctypes.cdll.LoadLibrary(lib_name)
-    except (OSError, WindowsError):
+    except (OSError):
         exc_info = sys.exc_info()
 
         # Try again with the local distribution, if there is one.
