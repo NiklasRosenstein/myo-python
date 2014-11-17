@@ -32,14 +32,13 @@ import os
 import sys
 import warnings
 import traceback
-from platform import platform
 
 import ctypes
 from ctypes import byref, POINTER as asptr, PYFUNCTYPE as py_functype
 
 from myo import six
 from myo.enum import Enumeration
-from myo.tools import ShortcutAccess, MacAddress, reraise
+from myo.tools import ShortcutAccess, MacAddress
 from myo.platform import platform
 
 
@@ -124,17 +123,9 @@ def init(dist_path=None, add_to_path=True):
     # Load the library and initialize the required contents.
     try:
         lib = ctypes.cdll.LoadLibrary(lib_name)
-    except (OSError):
-        exc_info = sys.exc_info()
-
-        # Try again with the local distribution, if there is one.
-        try:
-            from myo.localdist import dist_path
-        except ImportError as exc:
-            reraise(exc_info)
-            return
-
-        return init(dist_path, add_to_path)
+    except OSError:
+        sys.stderr.write('Error loading "%s". Make sure that it is in your path.\n' % lib_name)
+        raise
 
     lib = ShortcutAccess(lib, 'libmyo_')
 

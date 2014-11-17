@@ -7,7 +7,7 @@ myo.init()
 from myo.six import print_
 
 class Listener(myo.DeviceListener):
-    #return False from any method to stop the Hub
+    # return False from any method to stop the Hub
 
     def on_connect(self, myo, timestamp):
         print_("Connected to Myo")
@@ -26,7 +26,8 @@ class Listener(myo.DeviceListener):
         the callbacks requested the stop of the Hub. """
 
     def on_pair(self, myo, timestamp):
-        print_('on_pair')
+        print_('Paired')
+        print_("If you don't see any responses to your movements, try re-running the program or making sure the Myo works with Myo Connect (from Thalmic Labs).")
 
     def on_disconnect(self, myo, timestamp):
         print_('on_disconnect')

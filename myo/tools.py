@@ -7,6 +7,7 @@ myo.tools
 """
 
 from myo import six
+import sys
 
 class ShortcutAccess(object):
     r""" Wrapper for any kind of object to make the access to
@@ -103,12 +104,4 @@ class MacAddress(object):
     @property
     def intval(self):
         return self._value
-
-def reraise(exc_info=None):
-    r""" Reraise an exception. """
-
-    if not exc_info:
-        exc_info = sys.exc_info()
-    a, b, c = exc_info
-    raise a, b, c
 
