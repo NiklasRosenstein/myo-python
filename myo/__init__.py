@@ -369,7 +369,7 @@ def _invoke_listener(listener, event):
     elif kind == _myo.event_type_t.rssi:
         result = result and _('on_rssi', event.rssi)
 
-    elif kind == _myo.event_type_t.arm_lost or kind == _myo.event_type_t.arm_recognized:
+    elif kind == _myo.event_type_t.arm_unsynced or kind == _myo.event_type_t.arm_synced:
         print(kind)
 
     else:

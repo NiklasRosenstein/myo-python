@@ -166,11 +166,10 @@ class pose_t(Enumeration):
     wave_in = 2
     wave_out = 3
     fingers_spread = 4
-    reserved1 = 5
-    thumb_to_pinky = 6
+    double_tap = 5
 
     __fallback__ = -1
-    num_poses = Enumeration.Data(7)
+    num_poses = Enumeration.Data(6)
 
 class event_type_t(Enumeration):
 
@@ -179,11 +178,13 @@ class event_type_t(Enumeration):
     unpaired = 1
     connected = 2
     disconnected = 3
-    arm_recognized = 4
-    arm_lost = 5
+    arm_synced = 4
+    arm_unsynced = 5
     orientation = 6
     pose = 7
     rssi = 8
+    unlocked = 9
+    locked = 10
 
     __fallback__ = -1
 
