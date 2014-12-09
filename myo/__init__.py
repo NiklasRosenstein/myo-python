@@ -27,14 +27,14 @@ __all__ = (
     'init_myo', 'myo_initialized', 'now',
 
     # Enumerations
-    'event_type', 'pose',
+    'event_type', 'pose', 'locking_policy'
 )
 
 from myo import lowlevel as _myo
 from myo.lowlevel import init, initialized, now
 from myo.lowlevel import MyoError, ResultError, InvalidOperation
 from myo.lowlevel import event_type_t as event_type, pose_t as pose
-
+from myo.lowlevel import locking_policy_t as locking_policy
 import time
 import threading
 import traceback
@@ -129,6 +129,10 @@ class Hub(object):
         with self._lock:
             self._assert_running()
             self._hub.pair_adjacent(n)
+
+    def set_locking_policy(self, locking_policy):
+        with self._lock:
+            self._hub.set_locking_policy(locking_policy)
 
     def _run(self, duration_ms, listener):
         r""" Private version of the :meth:`run` method. Does not
@@ -369,8 +373,10 @@ def _invoke_listener(listener, event):
     elif kind == _myo.event_type_t.rssi:
         result = result and _('on_rssi', event.rssi)
 
-    elif kind == _myo.event_type_t.arm_unsynced or kind == _myo.event_type_t.arm_synced:
-        print(kind)
+    elif kind == _myo.event_type_t.arm_unsynced:
+        result = result and _('on_unsync')
+    elif kind == _myo.event_type_t.arm_synced:
+        result = result and _('on_sync')
 
     elif kind == _myo.event_type_t.unlocked:
         result = result and _('on_unlock')

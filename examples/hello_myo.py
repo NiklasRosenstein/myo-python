@@ -8,7 +8,7 @@ sys.path.append('../')
 
 import myo
 myo.init()
-synced = 0
+
 from myo.six import print_
 
 class Listener(myo.DeviceListener):
@@ -58,8 +58,15 @@ class Listener(myo.DeviceListener):
     def on_lock(self, myo, timestamp):
         print_('locked')
 
+    def on_sync(self, myo, timestamp):
+        print_('synced')
+
+    def on_unsync(self, myo, timestamp):
+            print_('unsynced')
+
 def main():
     hub = myo.Hub()
+    hub.set_locking_policy(myo.locking_policy.none)
     hub.run(1000, Listener())
 
     # Listen to keyboard interrupts and stop the

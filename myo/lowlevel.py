@@ -212,6 +212,13 @@ class handler_result_t(Enumeration):
 
     __fallback__ = -1
 
+#Locking policy added in beta7
+
+class locking_policy_t(Enumeration):
+    none = 0    # Pose events are always sent.
+    standard =1 # (default) Pose events are not sent while a Myo is locked.
+
+    __fallback__ = -1
 
 class base_void_p(ctypes.c_void_p):
     r""" Base class for the Myo void\* pointer types which implements
@@ -278,8 +285,12 @@ class hub_t(base_void_p):
     def _init_lib():
         init_func('init_hub', result_t,
                 asptr(hub_t), asptr(error_details_t))
+        # libmyo_result_t libmyo_shutdown_hub(libmyo_hub_t hub, libmyo_error_details_t* out_error);
         init_func('shutdown_hub', result_t,
                 hub_t, asptr(error_details_t))
+        #Added in beta 7
+        init_func('set_locking_policy', result_t, hub_t, locking_policy_t, asptr(error_details_t) )
+
 # REMOVED IN 0.8.6.2
 #         init_func('pair_any', result_t,
 #                 hub_t, ctypes.c_uint, asptr(error_details_t))
@@ -310,6 +321,15 @@ class hub_t(base_void_p):
         error = error_details_t()
         result = lib.shutdown_hub(self, byref(error))
         self.value = None
+        error.raise_on_error()
+        return result
+
+    def set_locking_policy(self, locking_policy):
+        r""" Sets the myo locking policy (see locking_policy_t enumeration)"""
+        
+        self._notnull()
+        error = error_details_t()
+        result = lib.set_locking_policy(self, locking_policy, byref(error))
         error.raise_on_error()
         return result
 
