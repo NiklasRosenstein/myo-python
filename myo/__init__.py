@@ -372,6 +372,12 @@ def _invoke_listener(listener, event):
     elif kind == _myo.event_type_t.arm_unsynced or kind == _myo.event_type_t.arm_synced:
         print(kind)
 
+    elif kind == _myo.event_type_t.unlocked:
+        result = result and _('on_unlock')
+
+    elif kind == _myo.event_type_t.locked:
+        result = result and _('on_lock')
+
     else:
         print('invalid event type: %s' % kind)
 
