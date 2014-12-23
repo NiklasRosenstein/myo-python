@@ -1,10 +1,5 @@
 # Copyright (C) 2014  Niklas Rosenstein
 # All rights reserved.
-import imp
-#imp.load_source('myo', '../myo/__init__.py')
-
-import sys
-sys.path.append('../')
 
 import myo
 myo.init()
@@ -41,16 +36,13 @@ class Listener(myo.DeviceListener):
         print_('on_pose', pose)
 
     def on_orientation_data(self, myo, timestamp, orientation):
-#        print_('orientation')
-        pass
+        print_('orientation')
 
     def on_accelerometor_data(self, myo, timestamp, acceleration):
-#        print_('accelometer')
-        pass
+        print_('accelometer')
 
     def on_gyroscope_data(self, myo, timestamp, gyroscope):
-#        print_('gyro')
-        pass
+        print_('gyro')
 
     def on_unlock(self, myo, timestamp):
         print_('unlocked')
