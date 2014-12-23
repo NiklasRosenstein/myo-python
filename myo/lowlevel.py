@@ -37,7 +37,7 @@ import ctypes
 from ctypes import byref, POINTER as asptr, PYFUNCTYPE as py_functype
 
 from myo import six
-from myo.enum import Enumeration
+from myo.enum import Enumeration, Data as Enumeration_Data
 from myo.tools import ShortcutAccess, MacAddress
 from myo.platform import platform
 
@@ -159,6 +159,15 @@ class vibration_type_t(Enumeration):
 
     __fallback__ = -1
 
+class stream_emg(Enumeration):
+
+    # Do not send EMG data.
+    disabled = 0
+    # Send EMG data.
+    enabled = 1
+
+    __fallback__ = -1
+
 class pose_t(Enumeration):
 
     rest = 0
@@ -169,7 +178,7 @@ class pose_t(Enumeration):
     double_tap = 5
 
     __fallback__ = -1
-    num_poses = Enumeration.Data(6)
+    num_poses = Enumeration_Data(6)
 
 class event_type_t(Enumeration):
 
@@ -185,6 +194,7 @@ class event_type_t(Enumeration):
     rssi = 8
     unlocked = 9
     locked = 10
+    emg = 11
 
     __fallback__ = -1
 
@@ -446,6 +456,7 @@ class myo_t(base_void_p):
         init_func('vibrate', result_t,
                 myo_t, vibration_type_t, asptr(error_details_t))
         init_func('request_rssi', result_t, myo_t, asptr(error_details_t))
+        init_func('set_stream_emg', result_t, myo_t, stream_emg, asptr(error_details_t))
         # REMOVED IN 0.8.6.2
         #init_func('training_is_available', ctypes.c_int, myo_t)
         #init_func('training_load_profile', result_t,
@@ -469,6 +480,14 @@ class myo_t(base_void_p):
         error = error_details_t()
         try:
             return lib.request_rssi(self, byref(error))
+        finally:
+            error.raise_on_error()
+
+    def set_stream_emg(self, emg):
+        self._notnull()
+        error = error_details_t()
+        try:
+            return lib.set_stream_emg(self, emg, byref(error))
         finally:
             error.raise_on_error()
 
@@ -527,6 +546,7 @@ class event_t(base_void_p):
                 event_t, ctypes.c_uint)
         init_func('event_get_pose', pose_t, event_t)
         init_func('event_get_rssi', ctypes.c_int8, event_t)
+        init_func('event_get_emg', ctypes.c_int8, event_t, ctypes.c_uint)
 
     def _checktype(self, current_op, *types):
         r""" Ensures that the event *self* is of one of the specified
@@ -596,6 +616,11 @@ class event_t(base_void_p):
     def rssi(self):
         self._checktype('get rssi', event_type_t.rssi)
         return lib.event_get_rssi(self)
+
+    @property
+    def emg(self):
+        self._checktype('get emg', event_type_t.emg)
+        return [lib.event_get_emg(self, i) for i in six.range(8)]
 
 def now():
     r""" Returns the current timestamp. """

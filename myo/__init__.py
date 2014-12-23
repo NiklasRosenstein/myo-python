@@ -38,6 +38,7 @@ from myo.lowlevel import locking_policy_t as locking_policy
 import time
 import threading
 import traceback
+import sys
 
 init_myo = init
 myo_initialized = initialized
@@ -289,6 +290,9 @@ class DeviceListener(object):
     def on_rssi(self, myo, timestamp, rssi):
         pass
 
+    def on_emg(self, myo, timestamp, emg):
+        pass
+
 class Event(object):
     r""" Copy of a Myo SDK event object that can be accessed even
     after the event has been destroyed. Must be constructed with
@@ -314,6 +318,8 @@ class Event(object):
             self.pose = low_event.pose
         elif self.type == event_type.rssi:
             self.rssi = low_event.rssi
+        elif self.type == event_type.emg:
+            self.emg = low_event.emg
 
     def __str__(self):
         return '<Event %s>' % self.type
@@ -344,8 +350,7 @@ def _invoke_listener(listener, event):
         if result is None:
             return True
         elif not isinstance(result, bool):
-            message = 'DeviceListener.%s() must return None or bool'
-            warnings.warn(message % name)
+            sys.stderr.write('DeviceListener.%s() must return None or bool\n' % name)
             result = False
 
         return result
@@ -372,6 +377,9 @@ def _invoke_listener(listener, event):
 
     elif kind == _myo.event_type_t.rssi:
         result = result and _('on_rssi', event.rssi)
+
+    elif kind == _myo.event_type_t.emg:
+        result = result and _('on_emg', event.emg)
 
     elif kind == _myo.event_type_t.arm_unsynced:
         result = result and _('on_unsync')
