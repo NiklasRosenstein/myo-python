@@ -29,12 +29,19 @@ class Listener(myo.DeviceListener):
     def on_pair(self, myo, timestamp):
         print_('Paired')
         print_("If you don't see any responses to your movements, try re-running the program or making sure the Myo works with Myo Connect (from Thalmic Labs).")
+        print_("Double tap enables EMG.")
+        print_("Spreading fingers disables EMG.")
 
     def on_disconnect(self, myo, timestamp):
         print_('on_disconnect')
 
     def on_pose(self, myo, timestamp, pose):
         print_('on_pose', pose)
+        if pose == pose_t.double_tap:
+            print_("Enabling EMG")
+            myo.set_stream_emg(stream_emg.enabled)
+        elif pose == pose_t.fingers_spread:
+            myo.set_stream_emg(stream_emg.disabled)
 
     def on_orientation_data(self, myo, timestamp, orientation):
         #print_('orientation')
@@ -61,8 +68,8 @@ class Listener(myo.DeviceListener):
         print_('unsynced')
         
     def on_emg(self, myo, timestamp, emg):
-        print_('emg')
-        print emg
+        print_('emg:')
+        print_(emg)
 
 def main():
     hub = myo.Hub()

@@ -137,8 +137,8 @@ class Hub(object):
 
     def _run(self, duration_ms, listener):
         r""" Private version of the :meth:`run` method. Does not
-        re-set the :attr:`running` attribute. Used by :meth:`run`
-        and :meth:`async_until_stopped`. """
+        re-set the :attr:`running` attribute. Used by :meth:`run`.
+        """
 
         if not isinstance(listener, DeviceListener):
             raise TypeError('listener must be DeviceListener instance')
