@@ -2,6 +2,7 @@
 # All rights reserved.
 
 import myo
+from myo.lowlevel import pose_t, stream_emg
 myo.init()
 
 from myo.six import print_
@@ -36,16 +37,36 @@ class Listener(myo.DeviceListener):
         print_('on_pose', pose)
 
     def on_orientation_data(self, myo, timestamp, orientation):
+        #print_('orientation')
         pass
 
     def on_accelerometor_data(self, myo, timestamp, acceleration):
+        #print_('accelometer')
         pass
 
     def on_gyroscope_data(self, myo, timestamp, gyroscope):
+        #print_('gyro')
         pass
+
+    def on_unlock(self, myo, timestamp):
+        print_('unlocked')
+
+    def on_lock(self, myo, timestamp):
+        print_('locked')
+
+    def on_sync(self, myo, timestamp):
+        print_('synced')
+
+    def on_unsync(self, myo, timestamp):
+        print_('unsynced')
+        
+    def on_emg(self, myo, timestamp, emg):
+        print_('emg')
+        print emg
 
 def main():
     hub = myo.Hub()
+    hub.set_locking_policy(myo.locking_policy.none)
     hub.run(1000, Listener())
 
     # Listen to keyboard interrupts and stop the

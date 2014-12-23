@@ -37,7 +37,7 @@ import ctypes
 from ctypes import byref, POINTER as asptr, PYFUNCTYPE as py_functype
 
 from myo import six
-from myo.enum import Enumeration
+from myo.enum import Enumeration, Data as Enumeration_Data
 from myo.tools import ShortcutAccess, MacAddress
 from myo.platform import platform
 
@@ -159,6 +159,15 @@ class vibration_type_t(Enumeration):
 
     __fallback__ = -1
 
+class stream_emg(Enumeration):
+
+    # Do not send EMG data.
+    disabled = 0
+    # Send EMG data.
+    enabled = 1
+
+    __fallback__ = -1
+
 class pose_t(Enumeration):
 
     rest = 0
@@ -166,11 +175,10 @@ class pose_t(Enumeration):
     wave_in = 2
     wave_out = 3
     fingers_spread = 4
-    reserved1 = 5
-    thumb_to_pinky = 6
+    double_tap = 5
 
     __fallback__ = -1
-    num_poses = Enumeration.Data(7)
+    num_poses = Enumeration_Data(6)
 
 class event_type_t(Enumeration):
 
@@ -179,11 +187,14 @@ class event_type_t(Enumeration):
     unpaired = 1
     connected = 2
     disconnected = 3
-    arm_recognized = 4
-    arm_lost = 5
+    arm_synced = 4
+    arm_unsynced = 5
     orientation = 6
     pose = 7
     rssi = 8
+    unlocked = 9
+    locked = 10
+    emg = 11
 
     __fallback__ = -1
 
@@ -211,6 +222,13 @@ class handler_result_t(Enumeration):
 
     __fallback__ = -1
 
+#Locking policy added in beta7
+
+class locking_policy_t(Enumeration):
+    none = 0    # Pose events are always sent.
+    standard =1 # (default) Pose events are not sent while a Myo is locked.
+
+    __fallback__ = -1
 
 class base_void_p(ctypes.c_void_p):
     r""" Base class for the Myo void\* pointer types which implements
@@ -277,8 +295,12 @@ class hub_t(base_void_p):
     def _init_lib():
         init_func('init_hub', result_t,
                 asptr(hub_t), asptr(error_details_t))
+        # libmyo_result_t libmyo_shutdown_hub(libmyo_hub_t hub, libmyo_error_details_t* out_error);
         init_func('shutdown_hub', result_t,
                 hub_t, asptr(error_details_t))
+        #Added in beta 7
+        init_func('set_locking_policy', result_t, hub_t, locking_policy_t, asptr(error_details_t) )
+
 # REMOVED IN 0.8.6.2
 #         init_func('pair_any', result_t,
 #                 hub_t, ctypes.c_uint, asptr(error_details_t))
@@ -309,6 +331,15 @@ class hub_t(base_void_p):
         error = error_details_t()
         result = lib.shutdown_hub(self, byref(error))
         self.value = None
+        error.raise_on_error()
+        return result
+
+    def set_locking_policy(self, locking_policy):
+        r""" Sets the myo locking policy (see locking_policy_t enumeration)"""
+        
+        self._notnull()
+        error = error_details_t()
+        result = lib.set_locking_policy(self, locking_policy, byref(error))
         error.raise_on_error()
         return result
 
@@ -425,6 +456,7 @@ class myo_t(base_void_p):
         init_func('vibrate', result_t,
                 myo_t, vibration_type_t, asptr(error_details_t))
         init_func('request_rssi', result_t, myo_t, asptr(error_details_t))
+        init_func('set_stream_emg', result_t, myo_t, stream_emg, asptr(error_details_t))
         # REMOVED IN 0.8.6.2
         #init_func('training_is_available', ctypes.c_int, myo_t)
         #init_func('training_load_profile', result_t,
@@ -448,6 +480,14 @@ class myo_t(base_void_p):
         error = error_details_t()
         try:
             return lib.request_rssi(self, byref(error))
+        finally:
+            error.raise_on_error()
+
+    def set_stream_emg(self, emg):
+        self._notnull()
+        error = error_details_t()
+        try:
+            return lib.set_stream_emg(self, emg, byref(error))
         finally:
             error.raise_on_error()
 
@@ -506,6 +546,7 @@ class event_t(base_void_p):
                 event_t, ctypes.c_uint)
         init_func('event_get_pose', pose_t, event_t)
         init_func('event_get_rssi', ctypes.c_int8, event_t)
+        init_func('event_get_emg', ctypes.c_int8, event_t, ctypes.c_uint)
 
     def _checktype(self, current_op, *types):
         r""" Ensures that the event *self* is of one of the specified
@@ -575,6 +616,11 @@ class event_t(base_void_p):
     def rssi(self):
         self._checktype('get rssi', event_type_t.rssi)
         return lib.event_get_rssi(self)
+
+    @property
+    def emg(self):
+        self._checktype('get emg', event_type_t.emg)
+        return [lib.event_get_emg(self, i) for i in six.range(8)]
 
 def now():
     r""" Returns the current timestamp. """

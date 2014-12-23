@@ -27,17 +27,18 @@ __all__ = (
     'init_myo', 'myo_initialized', 'now',
 
     # Enumerations
-    'event_type', 'pose',
+    'event_type', 'pose', 'locking_policy'
 )
 
 from myo import lowlevel as _myo
 from myo.lowlevel import init, initialized, now
 from myo.lowlevel import MyoError, ResultError, InvalidOperation
 from myo.lowlevel import event_type_t as event_type, pose_t as pose
-
+from myo.lowlevel import locking_policy_t as locking_policy
 import time
 import threading
 import traceback
+import sys
 
 init_myo = init
 myo_initialized = initialized
@@ -129,6 +130,10 @@ class Hub(object):
         with self._lock:
             self._assert_running()
             self._hub.pair_adjacent(n)
+
+    def set_locking_policy(self, locking_policy):
+        with self._lock:
+            self._hub.set_locking_policy(locking_policy)
 
     def _run(self, duration_ms, listener):
         r""" Private version of the :meth:`run` method. Does not
@@ -285,6 +290,9 @@ class DeviceListener(object):
     def on_rssi(self, myo, timestamp, rssi):
         pass
 
+    def on_emg(self, myo, timestamp, emg):
+        pass
+
 class Event(object):
     r""" Copy of a Myo SDK event object that can be accessed even
     after the event has been destroyed. Must be constructed with
@@ -310,6 +318,8 @@ class Event(object):
             self.pose = low_event.pose
         elif self.type == event_type.rssi:
             self.rssi = low_event.rssi
+        elif self.type == event_type.emg:
+            self.emg = low_event.emg
 
     def __str__(self):
         return '<Event %s>' % self.type
@@ -340,8 +350,7 @@ def _invoke_listener(listener, event):
         if result is None:
             return True
         elif not isinstance(result, bool):
-            message = 'DeviceListener.%s() must return None or bool'
-            warnings.warn(message % name)
+            sys.stderr.write('DeviceListener.%s() must return None or bool\n' % name)
             result = False
 
         return result
@@ -369,8 +378,19 @@ def _invoke_listener(listener, event):
     elif kind == _myo.event_type_t.rssi:
         result = result and _('on_rssi', event.rssi)
 
-    elif kind == _myo.event_type_t.arm_lost or kind == _myo.event_type_t.arm_recognized:
-        print(kind)
+    elif kind == _myo.event_type_t.emg:
+        result = result and _('on_emg', event.emg)
+
+    elif kind == _myo.event_type_t.arm_unsynced:
+        result = result and _('on_unsync')
+    elif kind == _myo.event_type_t.arm_synced:
+        result = result and _('on_sync')
+
+    elif kind == _myo.event_type_t.unlocked:
+        result = result and _('on_unlock')
+
+    elif kind == _myo.event_type_t.locked:
+        result = result and _('on_lock')
 
     else:
         print('invalid event type: %s' % kind)
