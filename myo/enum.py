@@ -102,7 +102,7 @@ class EnumerationMeta(type):
         values.sort(key=lambda x: x.value)
         return iter(values)
 
-class Enumeration(object):
+class Enumeration(metaclass = EnumerationMeta):
     r""" This is the base class for listing enumerations. All
     components of the class that are integers will be automatically
     converted to instances of the Enumeration class. Creating new
