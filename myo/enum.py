@@ -102,14 +102,12 @@ class EnumerationMeta(type):
         values.sort(key=lambda x: x.value)
         return iter(values)
 
-class Enumeration(object):
+class Enumeration(six.with_metaclass(EnumerationMeta)):
     r""" This is the base class for listing enumerations. All
     components of the class that are integers will be automatically
     converted to instances of the Enumeration class. Creating new
     instances of the class will only work if the value is an existing
     enumeration value. """
-
-    __metaclass__ = EnumerationMeta
 
     def __new__(cls, value, _allow_fallback=True):
         r""" Creates a new instance of the Enumeration. *value* must

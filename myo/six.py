@@ -1,3 +1,5 @@
+"""Utilities for writing code that runs on Python 2 and 3"""
+
 # Copyright (C) 2014  Niklas Rosenstein
 # All rights reserved.
 r"""
@@ -15,6 +17,7 @@ PY2 = sys.version_info[0] < 3
 PY3 = not PY2
 
 if PY2:
+    print('Using Python 2')
     string_types = (basestring,)
 
     range = xrange
@@ -42,10 +45,19 @@ if PY2:
         file_.write(str(end))
         if flush and hasattr(file_, 'flush'):
             file_.flush()
-
 else:
+    print('Using Python 3')
     string_types = (str, bytes)
 
     range = __builtins__['range']
     print_ = __builtins__['print']
 
+def with_metaclass(meta, *bases):
+    """Create a base class with a metaclass."""
+    # This requires a bit of explanation: the basic idea is to make a dummy
+    # metaclass for one level of class instantiation that replaces itself with
+    # the actual metaclass.
+    class metaclass(meta):
+        def __new__(cls, name, this_bases, d):
+            return meta(name, bases, d)
+    return type.__new__(metaclass, 'temporary_class', (), {})
