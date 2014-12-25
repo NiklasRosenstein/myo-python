@@ -76,7 +76,7 @@ class EnumerationMeta(type):
         # Iterate over all entries in the data entries and
         # convert integral values to instances of the enumeration
         # class.
-        for key, value in enum_values.iteritems():
+        for key, value in enum_values.items():
 
             # Create the new object. We must not use the classes'
             # __new__() method as it resolves the object from the
@@ -98,7 +98,7 @@ class EnumerationMeta(type):
     def __iter__(self):
         r""" Iterator over value-sorted enumeration values. """
 
-        values = self._values.values()
+        values = list(self._values.values())
         values.sort(key=lambda x: x.value)
         return iter(values)
 
