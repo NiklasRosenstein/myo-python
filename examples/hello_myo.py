@@ -3,9 +3,16 @@
 
 import myo
 from myo.lowlevel import pose_t, stream_emg
+from myo.six import print_
+import random
+
 myo.init()
 
-from myo.six import print_
+SHOW_OUTPUT_CHANCE = 0.01
+r"""
+There can be a lot of output from certain data like acceleration and orientation.
+This parameter controls the percent of times that data is shown.
+"""
 
 class Listener(myo.DeviceListener):
     # return False from any method to stop the Hub
@@ -30,7 +37,7 @@ class Listener(myo.DeviceListener):
         print_('Paired')
         print_("If you don't see any responses to your movements, try re-running the program or making sure the Myo works with Myo Connect (from Thalmic Labs).")
         print_("Double tap enables EMG.")
-        print_("Spreading fingers disables EMG.")
+        print_("Spreading fingers disables EMG.\n")
 
     def on_disconnect(self, myo, timestamp):
         print_('on_disconnect')
@@ -39,21 +46,22 @@ class Listener(myo.DeviceListener):
         print_('on_pose', pose)
         if pose == pose_t.double_tap:
             print_("Enabling EMG")
+            print_("Spreading fingers disables EMG.")
+            print_("=" * 80)
             myo.set_stream_emg(stream_emg.enabled)
         elif pose == pose_t.fingers_spread:
+            print_("=" * 80)
+            print_("Disabling EMG")
             myo.set_stream_emg(stream_emg.disabled)
 
     def on_orientation_data(self, myo, timestamp, orientation):
-        #print_('orientation')
-        pass
+        show_output('orientation', orientation)
 
     def on_accelerometor_data(self, myo, timestamp, acceleration):
-        #print_('accelometer')
-        pass
+        show_output('acceleration', acceleration)
 
     def on_gyroscope_data(self, myo, timestamp, gyroscope):
-        #print_('gyro')
-        pass
+        show_output('gyroscope', gyroscope)
 
     def on_unlock(self, myo, timestamp):
         print_('unlocked')
@@ -68,8 +76,11 @@ class Listener(myo.DeviceListener):
         print_('unsynced')
         
     def on_emg(self, myo, timestamp, emg):
-        print_('emg:')
-        print_(emg)
+        show_output('emg', emg)
+
+def show_output(message, data):
+    if random.random() < SHOW_OUTPUT_CHANCE: 
+        print_(message + ':' + str(data))
 
 def main():
     hub = myo.Hub()
