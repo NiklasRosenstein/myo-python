@@ -44,9 +44,9 @@ See [hello_myo.py](examples/hello_myo.py) for more examples.
   import os, sys
   sys.path.append(os.path.join('path', 'to', 'myo-python'))
   ```
-0. Downloads the Myo SDK for your system from [here](https://developer.thalmic.com/downloads).
-0. Add the path to the Myo SDK to your `PATH`.
-  * Windows: The folder containing myo32.dll and myo64.dll.
+0. Download the Myo SDK for your system from [here](https://developer.thalmic.com/downloads).
+0. Add the **full absolute path** to the Myo SDK to your `PATH`.
+  * Windows: The folder containing myo32.dll and myo64.dll (for example C:\Program Files\Thalmic Labs\myo-sdk-win-0.8.0\bin).
   * Mac: The sdk/myo.framework/ folder. Comment on [#10](https://github.com/juharris/myo-python/issues/10) if you have issues.
   * Linux: Use Unity? Comment on [#11](https://github.com/juharris/myo-python/issues/11) if you figure this out and we'll update the README. People have definitely gotten the Myo SDK to work on Linux and there should be some forum posts about it somewhere.
 
