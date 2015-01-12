@@ -69,8 +69,8 @@ class Listener(myo.DeviceListener):
     def on_lock(self, myo, timestamp):
         print_('locked')
 
-    def on_sync(self, myo, timestamp):
-        print_('synced')
+    def on_sync(self, myo, timestamp, arm, x_direction):
+        print_('synced', arm, x_direction)
 
     def on_unsync(self, myo, timestamp):
         print_('unsynced')
