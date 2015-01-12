@@ -320,6 +320,9 @@ class Event(object):
             self.rssi = low_event.rssi
         elif self.type == event_type.emg:
             self.emg = low_event.emg
+        elif self.type == event_type.arm_synced:
+            self.arm = low_event.arm
+            self.x_direction = low_event.x_direction
 
     def __str__(self):
         return '<Event %s>' % self.type
@@ -384,7 +387,7 @@ def _invoke_listener(listener, event):
     elif kind == _myo.event_type_t.arm_unsynced:
         result = result and _('on_unsync')
     elif kind == _myo.event_type_t.arm_synced:
-        result = result and _('on_sync')
+        result = result and _('on_sync', event.arm, event.x_direction)
 
     elif kind == _myo.event_type_t.unlocked:
         result = result and _('on_unlock')
