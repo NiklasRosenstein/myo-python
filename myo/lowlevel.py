@@ -230,6 +230,22 @@ class locking_policy_t(Enumeration):
 
     __fallback__ = -1
 
+class arm_t(Enumeration):
+
+    right = 0
+    left = 1
+    unknown = 2
+
+    __fallback__ = -1
+
+class x_direction_t(Enumeration):
+
+    toward_wrist = 0
+    toward_elbow = 1
+    unknown = 2
+
+    __fallback__ = -1
+
 class base_void_p(ctypes.c_void_p):
     r""" Base class for the Myo void\* pointer types which implements
     a few convenience methods to check for nullptr and even automatically
@@ -547,6 +563,8 @@ class event_t(base_void_p):
         init_func('event_get_pose', pose_t, event_t)
         init_func('event_get_rssi', ctypes.c_int8, event_t)
         init_func('event_get_emg', ctypes.c_int8, event_t, ctypes.c_uint)
+        init_func('event_get_arm', arm_t, event_t)
+        init_func('event_get_x_direction', x_direction_t, event_t)
 
     def _checktype(self, current_op, *types):
         r""" Ensures that the event *self* is of one of the specified
@@ -621,6 +639,16 @@ class event_t(base_void_p):
     def emg(self):
         self._checktype('get emg', event_type_t.emg)
         return [lib.event_get_emg(self, i) for i in six.range(8)]
+
+    @property
+    def arm(self):
+        self._checktype('get arm', event_type_t.arm_synced)
+        return lib.event_get_arm(self)
+
+    @property
+    def x_direction(self):
+        self._checktype('get x direction', event_type_t.arm_synced)
+        return lib.event_get_x_direction(self)
 
 def now():
     r""" Returns the current timestamp. """
