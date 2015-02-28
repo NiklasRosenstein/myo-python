@@ -293,6 +293,18 @@ class DeviceListener(object):
     def on_emg(self, myo, timestamp, emg):
         pass
 
+    def on_unsync(self, myo, timestamp):
+        pass
+
+    def on_sync(self, myo, timestamp, arm, x_direction):
+        pass
+
+    def on_unlock(self, myo, timestamp):
+        pass
+
+    def on_lock(self, myo, timestamp):
+        pass
+
 class Event(object):
     r""" Copy of a Myo SDK event object that can be accessed even
     after the event has been destroyed. Must be constructed with
