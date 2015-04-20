@@ -8,9 +8,6 @@ Python Myo is compatible with Python 2 and 3!
 ## Example
 
 ```python
-# Copyright (C) 2014  Niklas Rosenstein
-# All rights reserved.
-
 import myo
 myo.init()
 
@@ -50,8 +47,6 @@ See [hello_myo.py](examples/hello_myo.py) for more examples.
   * Mac: Add the **full absolute path** for myo.framework/ (for example "/Library/frameworks/myo.framework" without quotes) to `DYLD_LIBRARY_PATH`. Comment on [#10](https://github.com/juharris/myo-python/issues/10) if you have issues.
   * Linux: Use Unity? Comment on [#11](https://github.com/juharris/myo-python/issues/11) if you figure this out and we'll update the README. People have definitely gotten the Myo SDK to work on Linux and there should be some forum posts about it somewhere.
 
-----
+------------------------------------------------------------------------
 
-__Copyright (C) 2014  Niklas Rosenstein__,
-All rights reserved.
-
+This project is licensed under the MIT License. Copyright &copy; 2015 Niklas Rosenstein
