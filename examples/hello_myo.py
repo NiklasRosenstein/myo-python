@@ -22,16 +22,14 @@ from __future__ import print_function
 
 import myo
 import random
+import time
 
 from myo.lowlevel import pose_t, stream_emg
 
 myo.init()
 
-SHOW_OUTPUT_CHANCE = 0.01
-r"""
-There can be a lot of output from certain data like acceleration and orientation.
-This parameter controls the percent of times that data is shown.
-"""
+OUTPUT_INTERVAL = 0.25  # seconds
+OUTPUT_LASTTIME = {}
 
 class Listener(myo.DeviceListener):
     # return False from any method to stop the Hub
@@ -54,7 +52,9 @@ class Listener(myo.DeviceListener):
 
     def on_pair(self, myo, timestamp):
         print('Paired')
-        print("If you don't see any responses to your movements, try re-running the program or making sure the Myo works with Myo Connect (from Thalmic Labs).")
+        print("If you don't see any responses to your movements, try "
+              "re-running the program or making sure the Myo works with Myo "
+              "Connect (from Thalmic Labs).")
         print("Double tap enables EMG.")
         print("Spreading fingers disables EMG.\n")
 
@@ -74,13 +74,13 @@ class Listener(myo.DeviceListener):
             myo.set_stream_emg(stream_emg.disabled)
 
     def on_orientation_data(self, myo, timestamp, orientation):
-        show_output('orientation', orientation)
+        show_output('orientation ', orientation)
 
     def on_accelerometor_data(self, myo, timestamp, acceleration):
         show_output('acceleration', acceleration)
 
     def on_gyroscope_data(self, myo, timestamp, gyroscope):
-        show_output('gyroscope', gyroscope)
+        show_output('gyroscope   ', gyroscope)
 
     def on_unlock(self, myo, timestamp):
         print('unlocked')
@@ -97,9 +97,11 @@ class Listener(myo.DeviceListener):
     def on_emg(self, myo, timestamp, emg):
         show_output('emg', emg)
 
-def show_output(message, data):
-    if random.random() < SHOW_OUTPUT_CHANCE:
-        print(message + ':' + str(data))
+def show_output(kind, data):
+    ctime = time.time()
+    if (ctime - OUTPUT_LASTTIME.get(kind, 0)) >= OUTPUT_INTERVAL:
+        print(kind, ':', data)
+        OUTPUT_LASTTIME[kind] = ctime
 
 def main():
     hub = myo.Hub()
