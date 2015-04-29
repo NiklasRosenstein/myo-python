@@ -45,15 +45,14 @@ __all__ = (
     # REMOVED IN 0.8.6.2 'now',
 )
 
-import os
-import sys
-import warnings
-import traceback
-
 import ctypes
-from ctypes import byref, POINTER as asptr, PYFUNCTYPE as py_functype
+import os
+import six
+import sys
+import traceback
+import warnings
 
-from myo import six
+from ctypes import byref, POINTER as asptr, PYFUNCTYPE as py_functype
 from myo.enum import Enumeration, Data as Enumeration_Data
 from myo.tools import ShortcutAccess, MacAddress
 from myo.platform import platform
