@@ -25,8 +25,8 @@
 .. license:: MIT
 """
 
-__author__ = ('Niklas Rosenstein', 'rosensteinniklas@gmail.com')
-__version__ = (0, 1, 0)
+__author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
+__version__ = '0.1.0-dev'
 
 # The latest version number of the Myo SDK that this library
 # is compatible with.

@@ -24,7 +24,7 @@ myo.enum - Enumeration type-base
 """
 
 import ctypes
-from myo import six
+import six
 
 class NoSuchEnumerationValue(Exception):
     r""" Raised when an Enumeration object was attempted to be

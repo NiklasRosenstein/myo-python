@@ -23,7 +23,7 @@ myo.tools
 
 """
 
-from myo import six
+import six
 import sys
 
 class ShortcutAccess(object):

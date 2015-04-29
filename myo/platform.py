@@ -26,11 +26,11 @@ import platform as _platform
 
 def select():
     arch = 'x64' if sys.maxsize > (2 ** 32) else 'x86'
-    platform = _platform.platform().split('-')[0]
+    platform = _platform.platform().split('-')[0].lower()
 
-    if platform.startswith('Windows'):
+    if platform.startswith('windows') or platform.startswith('cygwin'):
         result = 'Windows'
-    elif platform.startswith('Darwin'):
+    elif platform.startswith('darwin'):
         result = 'Darwin'
     else:
         raise EnvironmentError('unsupported platform %s' % platform)
