@@ -41,8 +41,6 @@ Check the [examples](examples/) directory for more.
 
 You can download the Myo SDK from [here](https://developer.thalmic.com/downloads).
 
-<br/>
-
     $ git clone git@github.com:NiklasRosenstein/myo-python
     $ export PYTHONPATH=$PYTHONPATH:$(pwd)/myo-python
     $ export PATH=$PATH:$(pwd)/myo-sdk-mac-0.8.1/bin
