@@ -53,6 +53,7 @@ import traceback
 import warnings
 
 from ctypes import byref, POINTER as asptr, PYFUNCTYPE as py_functype
+from six.moves import range
 from myo.enum import Enumeration, Data as Enumeration_Data
 from myo.tools import ShortcutAccess, MacAddress
 from myo.platform import platform
@@ -634,12 +635,12 @@ class event_t(base_void_p):
     @property
     def acceleration(self):
         self._checktype('get acceleration', event_type_t.orientation)
-        return [lib.event_get_accelerometer(self, i) for i in six.range(3)]
+        return [lib.event_get_accelerometer(self, i) for i in range(3)]
 
     @property
     def gyroscope(self):
         self._checktype('get gyroscope', event_type_t.orientation)
-        return [lib.event_get_gyroscope(self, i) for i in six.range(3)]
+        return [lib.event_get_gyroscope(self, i) for i in range(3)]
 
     @property
     def pose(self):
@@ -654,7 +655,7 @@ class event_t(base_void_p):
     @property
     def emg(self):
         self._checktype('get emg', event_type_t.emg)
-        return [lib.event_get_emg(self, i) for i in six.range(8)]
+        return [lib.event_get_emg(self, i) for i in range(8)]
 
     @property
     def arm(self):
