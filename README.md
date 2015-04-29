@@ -31,6 +31,10 @@ if __name__ == '__main__':
 
 Check the [examples](examples/) directory for more.
 
+## Requirements
+
+- [six](https://pypi.python.org/pypi/six) for Python 2 and 3 compatibility
+
 ## Getting Started
 
 1. Download myo-python or clone it from GitHub
@@ -41,8 +45,9 @@ Check the [examples](examples/) directory for more.
 
 You can download the Myo SDK from [here](https://developer.thalmic.com/downloads).
 
+    $ virtualenv env --no-site-packages
     $ git clone git@github.com:NiklasRosenstein/myo-python
-    $ export PYTHONPATH=$PYTHONPATH:$(pwd)/myo-python
+    $ pip install -e myo-python
     $ export PATH=$PATH:$(pwd)/myo-sdk-mac-0.8.1/bin
     $ python3 myo-python/examples/hello_myo.py
 
