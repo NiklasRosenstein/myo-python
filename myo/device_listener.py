@@ -20,6 +20,14 @@
 
 import abc
 import six
+import time
+import threading
+import warnings
+
+from .lowlevel.enums import EventType, Pose, Arm, XDirection
+from .utils.threading import TimeoutClock
+from .vector import Vector
+from .quaternion import Quaternion
 
 
 class DeviceListener(six.with_metaclass(abc.ABCMeta)):
@@ -87,3 +95,228 @@ class DeviceListener(six.with_metaclass(abc.ABCMeta)):
 
     def on_lock(self, myo, timestamp):
         pass
+
+
+class Feed(DeviceListener):
+    """
+    This class implements the :class:`DeviceListener` interface
+    to collect all data and make it available to another thread
+    on-demand.
+
+    .. code-block:: python
+
+        import myo as libmyo
+        feed = libmyo.device_listener.Feed()
+        hub = libmyo.Hub()
+        hub.run(1000, feed)
+
+        try:
+            while True:
+                myos = feed.get_connected_devices()
+                if myos:
+                    print myos[0], myos[0].orientation
+                time.sleep(0.5)
+        finally:
+            hub.stop(True)
+            hub.shutdown()
+    """
+
+    class MyoProxy(object):
+
+        def __init__(self, low_myo, timestamp, firmware_version):
+            super(Feed.MyoProxy, self).__init__()
+            self.synchronized = threading.Condition()
+            self._connect_time = timestamp
+            self._disconnect_time = None
+            self._myo = low_myo
+            self._emg = None
+            self._orientation = Quaternion.identity()
+            self._acceleration = Vector(0, 0, 0)
+            self._gyroscope = Vector(0, 0, 0)
+            self._pose = Pose.rest
+            self._arm = None
+            self._xdir = None
+            self._rssi = None
+            self._firmware_version = firmware_version
+
+        def __repr__(self):
+            result = '<MyoProxy ('
+            with self.synchronized:
+                if self.connected:
+                    result += 'connected) at 0x{0:x}>'.format(self._myo.value)
+                else:
+                    result += 'disconnected)>'
+            return result
+
+        def __assert_connected(self):
+            if not self.connected:
+                raise RuntimeError('Myo was disconnected')
+
+        @property
+        def connected(self):
+            with self.synchronized:
+                return bool(self._myo is not None and
+                    self._disconnect_time is None)
+
+        @property
+        def connect_time(self):
+            return self._connect_time
+
+        @property
+        def disconnect_time(self):
+            with self.synchronized:
+                return self._disconnect_time
+
+        @property
+        def firmware_version(self):
+            return self._firmware_version
+
+        @property
+        def orientation(self):
+            with self.synchronized:
+                return self._orientation.copy()
+
+        @property
+        def acceleration(self):
+            with self.synchronized:
+                return self._acceleration.copy()
+
+        @property
+        def gyroscope(self):
+            with self.synchronized:
+                return self._gyroscope.copy()
+
+        @property
+        def pose(self):
+            with self.synchronized:
+                return self._pose
+
+        @property
+        def arm(self):
+            with self.synchronized:
+                return self._arm
+
+        @property
+        def x_direction(self):
+            with self.synchronized:
+                return self._xdir
+
+        @property
+        def rssi(self):
+            with self.synchronized:
+                return self._rssi
+
+        def set_locking_policy(self, locking_policy):
+            with self.synchronized:
+                self.__assert_connected()
+                self._myo.set_locking_policy(locking_policy)
+
+        def set_stream_emg(self, emg):
+            with self.synchronized:
+                self.__assert_connected()
+                self._myo.set_stream_emg(emg)
+
+        def vibrate(self, vibration_type):
+            with self.synchronized:
+                self.__assert_connected()
+                self._myo.vibrate(vibration_type)
+
+        def request_rssi(self):
+            """
+            Requests the RSSI of the Myo armband. Until the RSSI is
+            retrieved, :attr:`rssi` returns None.
+            """
+
+            with self.synchronized:
+                self.__assert_connected()
+                self._rssi = None
+                self._myo.request_rssi()
+
+    def __init__(self):
+        super(Feed, self).__init__()
+        self.synchronized = threading.Condition()
+        self._myos = {}
+
+    def get_connected_devices(self):
+        """
+        get_connected_devices() -> list of Feed.MyoProxy
+
+        Returns a list of the connected Myo's.
+        """
+
+        with self.synchronized:
+            return list(self._myos.values())
+
+    def wait_for_single_device(self, timeout=None, interval=0.5):
+        """
+        wait_for_single_device(timeout) -> Feed.MyoProxy or None
+
+        Waits until a Myo is was paired with the Hub and returns it.
+        If the *timeout* is exceeded, returns None.
+
+        :param timeout: The maximum time to wait for a device.
+        :param interval: The interval at which the function should
+            exit sleeping. We can not sleep endlessly, otherwise
+            the main thread can not be exit, eg. through a
+            KeyboardInterrupt.
+        """
+
+        timer = TimeoutClock(timeout)
+        with self.synchronized:
+            # As long as there are no Myo's connected, wait until we
+            # get notified about a change.
+            while not self._myos and not timer.exceeded:
+                remaining = timer.remaining
+                if interval is not None and remaining > interval:
+                    remaining = interval
+                self.synchronized.wait(timer.remaining)
+            if self._myos:
+                return six.next(six.itervalues(self._myos))
+
+        return None
+
+    # DeviceListener
+
+    def on_event(self, kind, event):
+        myo = event.myo
+        timestamp = event.timestamp
+        with self.synchronized:
+            if kind == EventType.paired:
+                fmw_version = event.firmware_version
+                self._myos[myo.value] = self.MyoProxy(myo, timestamp, fmw_version)
+                self.synchronized.notify_all()
+                return True
+            elif kind == EventType.unpaired:
+                try: proxy = self._myos.pop(myo.value)
+                except KeyError:
+                    message = "Myo 0x{0:x} was not in the known Myo's list"
+                    warnings.warn(message.format(myo.value), RuntimeWarning)
+                else:
+                    # Remove the reference handle from the Myo proxy.
+                    with proxy.synchronized:
+                        proxy._disconnect_time = timestamp
+                        proxy._myo = None
+                finally:
+                    self.synchronized.notify_all()
+                return True
+            else:
+                try: proxy = self._myos[myo.value]
+                except KeyError:
+                    message = "Myo 0x{0:x} was not in the known Myo's list"
+                    warnings.warn(message.format(myo.value), RuntimeWarning)
+                    return True
+
+        with proxy.synchronized:
+            if kind == EventType.emg:
+                proxy._emg = event.emg
+            elif kind == EventType.arm_synced:
+                proxy._arm = event.arm
+                proxy._xdir = event.x_direction
+            elif kind == EventType.rssi:
+                proxy._rssi = event.rssi
+            elif kind == EventType.pose:
+                proxy._pose = event.pose
+            elif kind == EventType.orientation:
+                proxy._orientation = event.orientation
+                proxy._gyroscope = event.gyroscope
+                proxy._acceleration = event.acceleration
