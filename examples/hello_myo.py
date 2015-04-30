@@ -20,101 +20,117 @@
 
 from __future__ import print_function
 
-import myo
-import random
+import myo as libmyo; libmyo.init()
 import time
+import sys
 
-from myo.lowlevel import pose_t, stream_emg
+class Listener(libmyo.DeviceListener):
+    """
+    Listener implementation. Return False from any function to
+    stop the Hub.
+    """
 
-myo.init()
+    def __init__(self):
+        super(Listener, self).__init__()
+        self.emg_enabled = False
+        self.orientation = None
+        self.pose = libmyo.Pose.rest
+        self.rssi = None
+        self.locked = False
 
-OUTPUT_INTERVAL = 0.25  # seconds
-OUTPUT_LASTTIME = {}
-
-class Listener(myo.DeviceListener):
-    # return False from any method to stop the Hub
+    def output(self):
+        parts = []
+        if self.orientation:
+            for comp in self.orientation:
+                parts.append(str(comp).ljust(15))
+        parts.append(str(self.pose).ljust(10))
+        parts.append('E' if self.emg_enabled else ' ')
+        parts.append('L' if self.locked else ' ')
+        parts.append(self.rssi or 'NORSSI')
+        print('\r' + ''.join('[{0}]'.format(p) for p in parts), end='')
+        sys.stdout.flush()
 
     def on_connect(self, myo, timestamp):
-        print("Connected to Myo")
+        myo.vibrate('short')
         myo.vibrate('short')
         myo.request_rssi()
 
     def on_rssi(self, myo, timestamp, rssi):
-        print("RSSI:", rssi)
+        self.rssi = rssi
+        self.output()
 
     def on_event(self, event):
-        r""" Called before any of the event callbacks. """
+        """
+        Called before any of the event callbacks.
+        """
 
     def on_event_finished(self, event):
-        r""" Called after the respective event callbacks have been
+        """
+        Called after the respective event callbacks have been
         invoked. This method is *always* triggered, even if one of
-        the callbacks requested the stop of the Hub. """
+        the callbacks requested the stop of the Hub.
+        """
 
     def on_pair(self, myo, timestamp):
-        print('Paired')
-        print("If you don't see any responses to your movements, try "
-              "re-running the program or making sure the Myo works with Myo "
-              "Connect (from Thalmic Labs).")
-        print("Double tap enables EMG.")
-        print("Spreading fingers disables EMG.\n")
+        """
+        Called when a Myo armband is paired.
+        """
 
     def on_disconnect(self, myo, timestamp):
-        print('on_disconnect')
+        """
+        Called when a Myo is disconnected.
+        """
 
     def on_pose(self, myo, timestamp, pose):
-        print('on_pose', pose)
-        if pose == pose_t.double_tap:
-            print("Enabling EMG")
-            print("Spreading fingers disables EMG.")
-            print("=" * 80)
-            myo.set_stream_emg(stream_emg.enabled)
-        elif pose == pose_t.fingers_spread:
-            print("=" * 80)
-            print("Disabling EMG")
-            myo.set_stream_emg(stream_emg.disabled)
+        if pose == libmyo.Pose.double_tap:
+            myo.set_stream_emg(libmyo.StreamEmg.enabled)
+            self.emg_enabled = True
+        elif pose == libmyo.Pose.fingers_spread:
+            myo.set_stream_emg(libmyo.StreamEmg.disabled)
+            self.emg_enabled = False
+        self.pose = pose
+        self.output()
 
     def on_orientation_data(self, myo, timestamp, orientation):
-        show_output('orientation ', orientation)
+        self.orientation = orientation
+        self.output()
 
     def on_accelerometor_data(self, myo, timestamp, acceleration):
-        show_output('acceleration', acceleration)
+        pass
 
     def on_gyroscope_data(self, myo, timestamp, gyroscope):
-        show_output('gyroscope   ', gyroscope)
+        pass
 
     def on_unlock(self, myo, timestamp):
-        print('unlocked')
+        self.locked = False
+        self.output()
 
     def on_lock(self, myo, timestamp):
-        print('locked')
+        self.locked = True
+        self.output()
 
     def on_sync(self, myo, timestamp, arm, x_direction):
-        print('synced', arm, x_direction)
+        pass
 
     def on_unsync(self, myo, timestamp):
-        print('unsynced')
+        pass
 
     def on_emg(self, myo, timestamp, emg):
-        show_output('emg', emg)
+        pass
 
-def show_output(kind, data):
-    ctime = time.time()
-    if (ctime - OUTPUT_LASTTIME.get(kind, 0)) >= OUTPUT_INTERVAL:
-        print(kind, ':', data)
-        OUTPUT_LASTTIME[kind] = ctime
 
 def main():
-    hub = myo.Hub()
-    hub.set_locking_policy(myo.locking_policy.none)
+    hub = libmyo.Hub()
+    hub.set_locking_policy(libmyo.LockingPolicy.none)
     hub.run(1000, Listener())
 
-    # Listen to keyboard interrupts and stop the
-    # hub in that case.
+    # Listen to keyboard interrupts and stop the hub in that case.
     try:
         while hub.running:
-            myo.time.sleep(0.2)
+            time.sleep(0.5)
     except KeyboardInterrupt:
-        print("Quitting ...")
+        print("\nQuitting ...")
+    finally:
         hub.stop(True)
     hub.shutdown()
 
