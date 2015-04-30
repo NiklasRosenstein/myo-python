@@ -114,6 +114,19 @@ libmyo_result_t libmyo_vibrate(libmyo_myo_t myo, libmyo_vibration_type_t type, l
 LIBMYO_EXPORT
 libmyo_result_t libmyo_request_rssi(libmyo_myo_t myo, libmyo_error_details_t* out_error);
 
+/// EMG streaming modes.
+typedef enum {
+    libmyo_stream_emg_disabled, ///< Do not send EMG data.
+    libmyo_stream_emg_enabled   ///< Send EMG data.
+} libmyo_stream_emg_t;
+
+/// Set whether or not to stream EMG data for a given myo.
+/// Can be called when a Myo is paired.
+/// @returns libmyo_success if the EMG mode was set successfully, otherwise
+///  - libmyo_error_invalid_argument if \a myo is NULL
+LIBMYO_EXPORT
+libmyo_result_t libmyo_set_stream_emg(libmyo_myo_t myo, libmyo_stream_emg_t emg, libmyo_error_details_t* out_error);
+
 /// @}
 
 /// @defgroup libmyo_poses Pose recognition.
@@ -127,9 +140,9 @@ typedef enum {
     libmyo_pose_wave_out       = 3, ///< User has an open palm rotated towards the anterior of their wrist.
     libmyo_pose_fingers_spread = 4, ///< User has an open palm with their fingers spread away from each other.
     libmyo_pose_double_tap     = 5, ///< User tapped their thumb and middle finger together twice in succession.
-    
+
     libmyo_num_poses,               ///< Number of poses supported; not a valid pose.
-    
+
     libmyo_pose_unknown = 0xffff    ///< Unknown pose.
 } libmyo_pose_t;
 
@@ -188,6 +201,7 @@ typedef enum {
     libmyo_event_rssi,             ///< An RSSI value has been received.
     libmyo_event_unlocked,         ///< A Myo has become unlocked.
     libmyo_event_locked,           ///< A Myo has become locked.
+    libmyo_event_emg,              ///< EMG data has been received.
 } libmyo_event_type_t;
 
 /// Information about an event.
@@ -286,6 +300,12 @@ libmyo_pose_t libmyo_event_get_pose(libmyo_event_t event);
 /// Valid for libmyo_event_rssi events only.
 LIBMYO_EXPORT
 int8_t libmyo_event_get_rssi(libmyo_event_t event);
+
+/// Retrieve an EMG data point associated with an event.
+/// Valid for libmyo_event_emg events only.
+/// @a sensor must be smaller than 8.
+LIBMYO_EXPORT
+int8_t libmyo_event_get_emg(libmyo_event_t event, unsigned int sensor);
 
 /// Return type for event handlers.
 typedef enum {
