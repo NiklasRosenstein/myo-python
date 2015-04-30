@@ -45,11 +45,22 @@ Check the [examples](examples/) directory for more.
 
 You can download the Myo SDK from [here](https://developer.thalmic.com/downloads).
 
+### Windows (Cygwin)
+
     $ git clone git@github.com:NiklasRosenstein/myo-python
     $ virtualenv env --no-site-packages
     $ source env/bin/activate
     $ pip install -e myo-python
-    $ export PATH=$PATH:$(pwd)/myo-sdk-mac-0.8.1/bin
+    $ export PATH=$PATH:$(pwd)/myo-sdk-win-0.8.1/bin
+    $ python3 myo-python/examples/hello_myo.py
+
+### Mac
+
+    $ git clone git@github.com:NiklasRosenstein/myo-python
+    $ virtualenv env --no-site-packages
+    $ source env/bin/activate
+    $ pip install -e myo-python
+    $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/myo-sdk-mac-0.8.1/myo.framework
     $ python3 myo-python/examples/hello_myo.py
 
 ------------------------------------------------------------------------
