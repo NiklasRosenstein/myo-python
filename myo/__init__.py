@@ -273,44 +273,7 @@ class Hub(object):
         self._hub.shutdown()
 
 
-class Event(object):
-    """
-    Copy of a Myo SDK event object that can be accessed even
-    after the event has been destroyed. Must be constructed with
-    a :class:`myo.lowlevel.event_t` object.
-
-    This type of object is passed to :meth:`DeviceListener.on_event`.
-    """
-
-    def __init__(self, low_event):
-        if not isinstance(low_event, _myo.Event):
-            raise TypeError('expected event_t object')
-        super(Event, self).__init__()
-        self.type = low_event.type
-        self.myo = low_event.myo
-        self.timestamp = low_event.timestamp
-
-        if self.type in [EventType.paired, EventType.connected]:
-            self.firmware_version = low_event.firmware_version
-        elif self.type == EventType.orientation:
-            self.orientation = low_event.orientation
-            self.acceleration = low_event.acceleration
-            self.gyroscope = low_event.gyroscope
-        elif self.type == EventType.pose:
-            self.pose = low_event.pose
-        elif self.type == EventType.rssi:
-            self.rssi = low_event.rssi
-        elif self.type == EventType.emg:
-            self.emg = low_event.emg
-        elif self.type == EventType.arm_synced:
-            self.arm = low_event.arm
-            self.x_direction = low_event.x_direction
-
-    def __str__(self):
-        return '<Event %s>' % self.type
-
-
-def _invoke_listener(listener, event_ptr):
+def _invoke_listener(listener, event):
     """
     Invokes the :class:`DeviceListener` callback methods for
     the specified :class:`event<myo.lowlevel.event_t>`. If any
@@ -322,7 +285,6 @@ def _invoke_listener(listener, event_ptr):
     event when any of the calls in between returned False already.
     """
 
-    event = Event(event_ptr)
     myo = event.myo
     timestamp = event.timestamp
 

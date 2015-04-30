@@ -21,11 +21,17 @@
 import abc
 import six
 
+
 class DeviceListener(six.with_metaclass(abc.ABCMeta)):
     """
     Interface for listening to data sent from a Myo device.
     Return False from one of its callback methods to instruct
     the Hub to stop processing.
+
+    The *DeviceListener* operates between the high and low level
+    of the myo Python bindings. The ``myo`` object that is passed
+    to callback methods is a :class:`myo.lowlevel.ctyping.Myo`
+    object.
     """
 
     def on_event(self, event):

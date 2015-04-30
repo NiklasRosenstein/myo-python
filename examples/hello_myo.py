@@ -24,6 +24,7 @@ import myo as libmyo; libmyo.init()
 import time
 import sys
 
+
 class Listener(libmyo.DeviceListener):
     """
     Listener implementation. Return False from any function to
@@ -120,6 +121,9 @@ class Listener(libmyo.DeviceListener):
 
 
 def main():
+    print("Connecting to Myo ... Use CTRL^C to exit.")
+    print("If nothing happens, make sure the Bluetooth adapter is plugged in,")
+    print("Myo Connect is running and your Myo is put on.")
     hub = libmyo.Hub()
     hub.set_locking_policy(libmyo.LockingPolicy.none)
     hub.run(1000, Listener())
@@ -133,6 +137,7 @@ def main():
     finally:
         hub.stop(True)
     hub.shutdown()
+
 
 if __name__ == '__main__':
     main()
