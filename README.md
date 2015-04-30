@@ -1,5 +1,7 @@
 # Python bindings for the Myo SDK
 
+*Version 0.2.0-dev*
+
 The Python `myo` package is a ctypes based wrapper for the Myo shared
 libraries provided by Thalmic Labs. The aim is to provide a complete Python
 interface for the Myo SDK as a high level API to Python developers.
@@ -8,10 +10,9 @@ The myo-python package is compatible with Python 2 and 3.
 
 ```python
 from __future__ import print_function
-import myo
-myo.init()
+import myo as libmyo; libmyo.init()
 
-class Listener(myo.DeviceListener):
+class Listener(libmyo.DeviceListener):
 
     def on_pair(self, myo, timestamp):
         print("Hello Myo")
@@ -21,9 +22,19 @@ class Listener(myo.DeviceListener):
         return False # Stop the Hub
 
 def main():
-    hub = myo.Hub()
-    hub.set_locking_policy(myo.locking_policy.none)
+    hub = libmyo.Hub()
+    hub.set_locking_policy(libmyo.LockingPolicy.none)
     hub.run(1000, Listener())
+
+    try:
+        while True:
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        print("Goodbye")
+    finally:
+        hub.stop(True)
+    hub.shutdown()
+
 
 if __name__ == '__main__':
     main()
