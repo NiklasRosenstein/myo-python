@@ -8,6 +8,10 @@ interface for the Myo SDK as a high level API to Python developers.
 
 The myo-python package is compatible with Python 2 and 3.
 
+> **Note**: This branch contains the new development of `myo-v0.2.0`
+> which might loose backwards compatibility soon. Check the `v0.1.0`
+> branch for the older version.
+
 ```python
 from __future__ import print_function
 import myo as libmyo; libmyo.init()
