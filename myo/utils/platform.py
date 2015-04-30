@@ -17,6 +17,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+"""
+Detects the current platform and exposes it as :data:`platform` and
+:data:`arch` members. :data:`arch` can be either ``'x64'`` or ``'x86'``
+and :data:`platform` can be one of the following:
+
+- ``'Windows'``
+- ``'Windows (Cygwin)``
+- ``'Darwin'``
+
+If the platform is not supported, :class:`EnvironmentError` is raised
+when the module is loaded.
+"""
 
 from __future__ import absolute_import
 

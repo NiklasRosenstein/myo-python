@@ -58,39 +58,7 @@ from myo.tools import ShortcutAccess, MacAddress
 from myo.platform import platform
 
 
-class _Uninitialized(object):
-    r""" Datatype used as the pre-init state for the internal
-    shared library handle that raises an exception as soon as
-    it is tried to be used. """
 
-    def __getattribute__(self, name):
-        message = 'Call myo.init() before using any SDK contents...'
-        raise RuntimeError(message)
-
-lib = _Uninitialized()
-
-initializers = []
-
-def is_initializer(type_):
-    r""" Decorator for classes that provide an ``_init_lib()``
-    static method which is called when the :mod:`myo.lowlevel`
-    module is initialized to initialize the contents of :data:`lib`. """
-
-    assert hasattr(type_, '_init_lib')
-    assert callable(type_._init_lib)
-    initializers.append(type_)
-
-    return type_
-
-def init_func(name, restype, *argtypes):
-    r""" Initializes the *restype* and *argtypes* of a function in
-    with the specified *name* on the global :data:`lib`. ``'libmyo_'``
-    is preprended to *name* as the :data:`lib` is wrapped by a
-    :class:`ShortcutAccess` object. """
-
-    func = getattr(lib, name)
-    func.restype = restype
-    func.argtypes = argtypes
 
 
 def init(dist_path=None, add_to_path=True):
@@ -154,109 +122,6 @@ def initialized():
     return not isinstance(lib, _Uninitialized)
 
 
-class result_t(Enumeration):
-
-    success = 0
-    error = 1
-    error_invalid_argument = 2
-    error_runtime = 3
-
-    __fallback__ = -1
-
-class vibration_type_t(Enumeration):
-
-    short = 0
-    medium = 1
-    long = 2
-
-    __fallback__ = -1
-
-class stream_emg(Enumeration):
-
-    # Do not send EMG data.
-    disabled = 0
-    # Send EMG data.
-    enabled = 1
-
-    __fallback__ = -1
-
-class pose_t(Enumeration):
-
-    rest = 0
-    fist = 1
-    wave_in = 2
-    wave_out = 3
-    fingers_spread = 4
-    double_tap = 5
-
-    __fallback__ = -1
-    num_poses = Enumeration_Data(6)
-
-class event_type_t(Enumeration):
-
-    paired = 0
-    # beta 3
-    unpaired = 1
-    connected = 2
-    disconnected = 3
-    arm_synced = 4
-    arm_unsynced = 5
-    orientation = 6
-    pose = 7
-    rssi = 8
-    unlocked = 9
-    locked = 10
-    emg = 11
-
-    __fallback__ = -1
-
-class version_component_t(Enumeration):
-
-    major = 0
-    minor = 1
-    patch = 2
-
-    __fallback__ = -1
-
-class orientation_index_t(Enumeration):
-
-    x = 0
-    y = 1
-    z = 2
-    w = 3
-
-    __fallback__ = -1
-
-class handler_result_t(Enumeration):
-
-    continue_ = 0
-    stop = 1
-
-    __fallback__ = -1
-
-#Locking policy added in beta7
-
-class locking_policy_t(Enumeration):
-    none = 0    # Pose events are always sent.
-    standard =1 # (default) Pose events are not sent while a Myo is locked.
-
-    __fallback__ = -1
-
-class arm_t(Enumeration):
-
-    right = 0
-    left = 1
-    unknown = 2
-
-    __fallback__ = -1
-
-class x_direction_t(Enumeration):
-
-    toward_wrist = 0
-    toward_elbow = 1
-    unknown = 2
-
-    __fallback__ = -1
 
 class base_void_p(ctypes.c_void_p):
     r""" Base class for the Myo void\* pointer types which implements
@@ -531,30 +396,6 @@ class myo_t(base_void_p):
     def training_is_available(self):
         self._notnull()
         return lib.training_is_available(self) != 0
-
-@DeprecationWarning
-@is_initializer
-class training_dataset_t(base_void_p):
-
-    @staticmethod
-    def _init_lib():
-# REMOVED IN 0.8.6.2
-#         init_func('training_create_dataset', result_t,
-#                 myo_t, asptr(training_dataset_t), asptr(error_details_t))
-#         init_func('training_collect_data', result_t,
-#                 training_dataset_t, pose_t, training_collect_status_t,
-#                 base_void_p, asptr(error_details_t))
-#         init_func('training_train_from_dataset', result_t,
-#                 training_dataset_t, asptr(error_details_t))
-#         init_func('training_free_dataset', None, training_dataset_t)
-#         init_func('training_store_profile', result_t,
-#                 myo_t, ctypes.c_char_p, asptr(error_details_t))
-#         init_func('training_send_training_data', result_t,
-#                 training_dataset_t, asptr(error_details_t))
-#         init_func('training_annotate_training_data', result_t,
-#                 training_dataset_t, ctypes.c_char_p, ctypes.c_char_p,
-#                 asptr(error_details_t))
-        pass
 
 @is_initializer
 class event_t(base_void_p):

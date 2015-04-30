@@ -116,6 +116,7 @@ def main():
     except KeyboardInterrupt:
         print("Quitting ...")
         hub.stop(True)
+    hub.shutdown()
 
 if __name__ == '__main__':
     main()

@@ -17,14 +17,41 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-r"""
-myo.enum - Enumeration type-base
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
+This module provides an :class:`Enumeration` class to easily implement
+enumerations in Python. If any non-number data should be added to an
+enumeration class (eg. a string constant or function), it should be
+wrapped with the :class:`Enumeration.Data` class.
 
+.. code-block:: python
+
+    class Color(Enumeration):
+        red = 1
+        green = 3
+        blue = 2
+
+        @Enumeration.Data
+        @staticmethod
+        def get_random():
+            return random.choice([Color.red, Color.green, Color.blue])
+
+Enumeration values can be compared directly or by name, but not by
+their value. Their value can be retrieved using :func`int`. An
+enumeration value can be used for indexing or passed to a :mod:`ctypes`
+function as an integer.
+
+.. code-block:: python
+
+    print Color.red == 'red'         # True
+    print Color.red == Color.red     # True
+    print Color.red == 1             # False
+    print ['Foo', 'Bar'][Color.red]  # Bar
+    ctypes.cdll.some_lib.func(Color.red)
 """
 
 import ctypes
 import six
+
 
 class NoSuchEnumerationValue(Exception):
     r""" Raised when an Enumeration object was attempted to be
@@ -36,6 +63,7 @@ class NoSuchEnumerationValue(Exception):
 
     pass
 
+
 class Data(object):
     r""" Small class that can be used to specify data on an
     enumeration that should not be converted and interpreted
@@ -44,6 +72,7 @@ class Data(object):
     def __init__(self, value):
         super(Data, self).__init__()
         self.value = value
+
 
 class EnumerationMeta(type):
     r""" This is the meta class for the :class:`Enumeration`
@@ -118,6 +147,7 @@ class EnumerationMeta(type):
         values = list(self._values.values())
         values.sort(key=lambda x: x.value)
         return iter(values)
+
 
 class Enumeration(six.with_metaclass(EnumerationMeta)):
     r""" This is the base class for listing enumerations. All
@@ -211,5 +241,5 @@ class Enumeration(six.with_metaclass(EnumerationMeta)):
 
         return ctypes.c_int(obj.value)
 
-Enumeration.Data = Data
 
+Enumeration.Data = Data
