@@ -49,6 +49,9 @@ class DeviceListener(six.with_metaclass(abc.ABCMeta)):
     def on_pair(self, myo, timestamp):
         pass
 
+    def on_unpair(self, myo, timestamp):
+        pass
+
     def on_connect(self, myo, timestamp):
         pass
 

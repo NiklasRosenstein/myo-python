@@ -288,7 +288,8 @@ def _invoke_listener(listener, event):
     myo = event.myo
     timestamp = event.timestamp
 
-    # Invokes a method on the listener.
+    # Invokes a method on the listener. If defaults=True, will prepend
+    # the myo and timestamp argument to *args.
     def _(name, *args, **kwargs):
         defaults = kwargs.pop('defaults', True)
         if kwargs:
@@ -312,6 +313,8 @@ def _invoke_listener(listener, event):
 
     if kind == EventType.paired:
         result = result and _('on_pair')
+    elif kind == EventType.unpaired:
+        result = result and _('on_unpair')
     elif kind == EventType.connected:
         result = result and _('on_connect')
     elif kind == EventType.disconnected:
@@ -335,7 +338,7 @@ def _invoke_listener(listener, event):
     elif kind == EventType.locked:
         result = result and _('on_lock')
     else:
-        print('invalid event type: %s' % kind)
+        raise RuntimeError('invalid event type: %s' % kind)
 
     if not _('on_event_finished', kind, event, defaults=False):
         result = False
