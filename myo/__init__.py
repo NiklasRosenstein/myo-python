@@ -308,7 +308,7 @@ def _invoke_listener(listener, event):
         return result
 
     kind = event.type
-    result = _('on_event', event, defaults=False)
+    result = _('on_event', kind, event, defaults=False)
 
     if kind == EventType.paired:
         result = result and _('on_pair')
@@ -337,7 +337,7 @@ def _invoke_listener(listener, event):
     else:
         print('invalid event type: %s' % kind)
 
-    if not _('on_event_finished', event, defaults=False):
+    if not _('on_event_finished', kind, event, defaults=False):
         result = False
     return result
 

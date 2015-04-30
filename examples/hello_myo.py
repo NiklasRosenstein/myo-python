@@ -60,12 +60,12 @@ class Listener(libmyo.DeviceListener):
         self.rssi = rssi
         self.output()
 
-    def on_event(self, event):
+    def on_event(self, kind, event):
         """
         Called before any of the event callbacks.
         """
 
-    def on_event_finished(self, event):
+    def on_event_finished(self, kind, event):
         """
         Called after the respective event callbacks have been
         invoked. This method is *always* triggered, even if one of
