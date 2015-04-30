@@ -123,10 +123,16 @@ class Feed(DeviceListener):
 
     class MyoProxy(object):
 
+        __slots__ = ('synchronized,_pair_time,_unpair_time,_connect_time,'
+            '_disconnect_time,_myo,_emg,_orientation,_acceleration,'
+            '_gyroscope,_pose,_arm,_xdir,_rssi,_firmware_version').split(',')
+
         def __init__(self, low_myo, timestamp, firmware_version):
             super(Feed.MyoProxy, self).__init__()
             self.synchronized = threading.Condition()
-            self._connect_time = timestamp
+            self._pair_time = timestamp
+            self._unpair_time = None
+            self._connect_time = None
             self._disconnect_time = None
             self._myo = low_myo
             self._emg = None
@@ -155,8 +161,22 @@ class Feed(DeviceListener):
         @property
         def connected(self):
             with self.synchronized:
-                return bool(self._myo is not None and
+                return (self._connect_time is not None and
                     self._disconnect_time is None)
+
+        @property
+        def paired(self):
+            with self.synchronized:
+                return (self.myo_ is None or self._unpair_time is not None)
+
+        @property
+        def pair_time(self):
+            return self._pair_time
+
+        @property
+        def unpair_time(self):
+            with self.synchronized:
+                return self._unpair_time
 
         @property
         def connect_time(self):
@@ -251,8 +271,10 @@ class Feed(DeviceListener):
         """
         wait_for_single_device(timeout) -> Feed.MyoProxy or None
 
-        Waits until a Myo is was paired with the Hub and returns it.
-        If the *timeout* is exceeded, returns None.
+        Waits until a Myo is was paired **and** connected with the Hub
+        and returns it. If the *timeout* is exceeded, returns None.
+        This function will not return a Myo that is only paired but
+        not connected.
 
         :param timeout: The maximum time to wait for a device.
         :param interval: The interval at which the function should
@@ -262,16 +284,20 @@ class Feed(DeviceListener):
         """
 
         timer = TimeoutClock(timeout)
+        start = time.time()
         with self.synchronized:
             # As long as there are no Myo's connected, wait until we
             # get notified about a change.
-            while not self._myos and not timer.exceeded:
+            while not timer.exceeded:
+                # Check if we found a Myo that is connected.
+                for myo in six.itervalues(self._myos):
+                    if myo.connected:
+                        return myo
+
                 remaining = timer.remaining
                 if interval is not None and remaining > interval:
                     remaining = interval
-                self.synchronized.wait(timer.remaining)
-            if self._myos:
-                return six.next(six.itervalues(self._myos))
+                self.synchronized.wait(remaining)
 
         return None
 
@@ -294,7 +320,7 @@ class Feed(DeviceListener):
                 else:
                     # Remove the reference handle from the Myo proxy.
                     with proxy.synchronized:
-                        proxy._disconnect_time = timestamp
+                        proxy._unpair_time = timestamp
                         proxy._myo = None
                 finally:
                     self.synchronized.notify_all()
@@ -307,7 +333,11 @@ class Feed(DeviceListener):
                     return True
 
         with proxy.synchronized:
-            if kind == EventType.emg:
+            if kind == EventType.connected:
+                proxy._connect_time = timestamp
+            elif kind == EventType.disconnected:
+                proxy._disconnect_time = timestamp
+            elif kind == EventType.emg:
                 proxy._emg = event.emg
             elif kind == EventType.arm_synced:
                 proxy._arm = event.arm
