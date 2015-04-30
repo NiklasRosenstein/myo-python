@@ -42,7 +42,6 @@ __all__ = (
 
     # functions
     'init', 'initialized',
-    # REMOVED IN 0.8.6.2 'now',
 )
 
 import ctypes
@@ -114,7 +113,7 @@ def init(dist_path=None, add_to_path=True):
 
     # Determine the name which can be used to load the library
     # based on the current platform.
-    if platform == 'Windows':
+    if platform == 'Windows' or platform == 'Windows (Cygwin)':
         lib_name = 'myo%d.dll' % arch
     elif platform == 'Darwin':
         # lib name is just 'myo' as per:
@@ -145,12 +144,8 @@ def init(dist_path=None, add_to_path=True):
         raise
 
     lib = ShortcutAccess(lib, 'libmyo_')
-
     for class_ in initializers:
         class_._init_lib()
-
-    # Initialize global library functions.
-    # REMOVED IN 0.8.6.2 init_func('now', ctypes.c_uint64)
 
 def initialized():
     r""" Returns True if :meth:`init` has been called successfully
@@ -666,12 +661,6 @@ class event_t(base_void_p):
     def x_direction(self):
         self._checktype('get x direction', event_type_t.arm_synced)
         return lib.event_get_x_direction(self)
-
-def now():
-    r""" Returns the current timestamp. """
-
-    return lib.now()
-
 
 # Callback function for the training_collect_data(). The
 # training_dataset_t.collect_data() expects a slightly different interface.

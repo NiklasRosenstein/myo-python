@@ -44,7 +44,7 @@ __all__ = (
 )
 
 from myo import lowlevel as _myo
-from myo.lowlevel import init, initialized, now
+from myo.lowlevel import init, initialized
 from myo.lowlevel import MyoError, ResultError, InvalidOperation
 from myo.lowlevel import event_type_t as event_type, pose_t as pose
 from myo.lowlevel import locking_policy_t as locking_policy

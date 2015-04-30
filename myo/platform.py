@@ -28,8 +28,10 @@ def select():
     arch = 'x64' if sys.maxsize > (2 ** 32) else 'x86'
     platform = _platform.platform().split('-')[0].lower()
 
-    if platform.startswith('windows') or platform.startswith('cygwin'):
+    if platform.startswith('windows'):
         result = 'Windows'
+    elif platform.startswith('cygwin'):
+        result = 'Windows (Cygwin)'
     elif platform.startswith('darwin'):
         result = 'Darwin'
     else:
@@ -38,4 +40,3 @@ def select():
     return result, arch
 
 platform, arch = select()
-
