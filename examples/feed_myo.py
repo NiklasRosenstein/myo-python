@@ -34,9 +34,11 @@ def main():
             print("No Myo connected after 2 seconds.")
             return
 
-        while myo.connected:
+        print("Hello, Myo!")
+        while hub.running and myo.connected:
             print(myo.orientation)
             time.sleep(0.3)
+        print("Goodbye, Myo!")
     except KeyboardInterrupt:
         print("Keyboard Interrupt.")
     else:

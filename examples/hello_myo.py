@@ -139,12 +139,12 @@ def main():
     # Listen to keyboard interrupts and stop the hub in that case.
     try:
         while hub.running:
-            time.sleep(0.5)
+            time.sleep(0.25)
     except KeyboardInterrupt:
         print("\nQuitting ...")
     finally:
-        hub.stop(True)
-    hub.shutdown()
+        print("Shutting down hub...")
+        hub.shutdown()
 
 
 if __name__ == '__main__':
