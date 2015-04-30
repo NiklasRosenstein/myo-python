@@ -31,6 +31,8 @@ class Listener(libmyo.DeviceListener):
     stop the Hub.
     """
 
+    interval = 0.05  # Output only 0.05 seconds
+
     def __init__(self):
         super(Listener, self).__init__()
         self.emg_enabled = False
@@ -38,8 +40,14 @@ class Listener(libmyo.DeviceListener):
         self.pose = libmyo.Pose.rest
         self.rssi = None
         self.locked = False
+        self.last_time = 0
 
     def output(self):
+        ctime = time.time()
+        if (ctime - self.last_time) < self.interval:
+            return
+        self.last_time = ctime
+
         parts = []
         if self.orientation:
             for comp in self.orientation:
