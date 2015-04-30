@@ -142,12 +142,11 @@ class Hub(object):
         with self._lock:
             self._exception = None
 
-    def pair_any(self, n=1):
-        with self._lock:
-            self._assert_running()
-            self._hub.pair_any(n)
-
     def set_locking_policy(self, locking_policy):
+        """
+        Sets the locking policy.
+        """
+
         with self._lock:
             self._hub.set_locking_policy(locking_policy)
 
@@ -215,7 +214,7 @@ class Hub(object):
         # This is the worker function that is running in
         # a new thread.
         def worker():
-            while not self.stopped:
+            while not self.stop_requested:
                 if not self._run(interval_ms, listener):
                     self.stop()
 
@@ -232,18 +231,22 @@ class Hub(object):
             time.sleep(lil_sleep)
 
     def stop(self, join=False):
-        r""" Request the Stop of the Hub when it is running. When
+        """
+        Request the Stop of the Hub when it is running. When
         *join* is True, this function will block the current thread
-        until the Hub is not :attr:`running` anymore. """
+        until the Hub is not :attr:`running` anymore.
+        """
 
         with self._lock:
             self._stopped = True
         if join: self.join()
 
     def join(self, timeout=None):
-        r""" If the Hub was run with a thread, it can be joined (waiting
+        """
+        If the Hub was run with a thread, it can be joined (waiting
         blocked) with this method. If the Hub was not started within a
-        thread, this method will do nothing. """
+        thread, this method will do nothing.
+        """
 
         with self._lock:
             if not self._thread:
@@ -259,9 +262,16 @@ class Hub(object):
                 self._thread = None
 
     def shutdown(self):
-        r""" Shut the hub down. Will happen automatically when
-        the Hub is being deleted. This method will cause the Hub
-        to stop if it was still running. """
+        """
+        Shut the hub down. If the hub is still running, it will be
+        stopped right where it is. Call it before the hub is being
+        garbage collected, or a warning will be printed that it has not
+        been called.
+
+        Do not call this method from a DeviceListener as it would
+        cause the current thread to be joined which is not possible.
+        Use :meth:`stop` to request a stop.
+        """
 
         self.stop()
         try:

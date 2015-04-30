@@ -344,21 +344,6 @@ class Hub(BaseTypeWrapper):
         error.raise_on_error()
         return result
 
-    def pair_any(self, n=1):
-        """
-        Pairs with any *n* devices. The device listener will
-        receive the connection events.
-        """
-
-        self._notnull()
-        if n <= 0:
-            raise ValueError('n must be a non-zero positive number')
-
-        error = ErrorDetails()
-        result = lib.pair_any(self, n, byref(error))
-        error.raise_on_error()
-        return result
-
 
 class Myo(BaseTypeWrapper):
 
