@@ -74,7 +74,7 @@ try:
     print("Hello, Myo!")
     while hub.running and myo.connected:
         quat = myo.orientation
-        print("Orientation:", quat.x, quat.y, quat.z, quat.w
+        print("Orientation:", quat.x, quat.y, quat.z, quat.w)
     print("Goodbye, Myo!")
 finally:
     hub.shutdown()
