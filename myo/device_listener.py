@@ -112,7 +112,7 @@ class Feed(DeviceListener):
 
         try:
             while True:
-                myos = feed.get_devices()
+                myos = feed.get_connected_devices()
                 if myos:
                     print myos[0], myos[0].orientation
                 time.sleep(0.5)
@@ -266,14 +266,14 @@ class Feed(DeviceListener):
 
         with self.synchronized:
             return list(self._myos.values())
-    
+
     def get_connected_devices(self):
         """
         get_connected_devices(self) -> list of Feed.MyoProxy
-        
+
         Returns a list of connected Myo's.
         """
-        
+
         with self.synchronized:
             return [myo for myo in self._myos.values() if myo.connected]
 
