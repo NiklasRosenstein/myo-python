@@ -257,15 +257,25 @@ class Feed(DeviceListener):
         self.synchronized = threading.Condition()
         self._myos = {}
 
-    def get_connected_devices(self):
+    def get_devices(self):
         """
-        get_connected_devices() -> list of Feed.MyoProxy
+        get_devices() -> list of Feed.MyoProxy
 
-        Returns a list of the connected Myo's.
+        Returns a list of paired and connected Myo's.
         """
 
         with self.synchronized:
             return list(self._myos.values())
+
+    def get_connected_devices(self):
+        """
+        get_connected_devices(self) -> list of Feed.MyoProxy
+
+        Returns a list of connected Myo's.
+        """
+
+        with self.synchronized:
+            return [myo for myo in self._myos.values() if myo.connected]
 
     def wait_for_single_device(self, timeout=None, interval=0.5):
         """
