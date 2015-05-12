@@ -24,11 +24,14 @@ import myo as libmyo; libmyo.init()
 import time
 import sys
 
+
 class Listener(libmyo.DeviceListener):
     """
     Listener implementation. Return False from any function to
     stop the Hub.
     """
+
+    interval = 0.05  # Output only 0.05 seconds
 
     def __init__(self):
         super(Listener, self).__init__()
@@ -37,8 +40,14 @@ class Listener(libmyo.DeviceListener):
         self.pose = libmyo.Pose.rest
         self.rssi = None
         self.locked = False
+        self.last_time = 0
 
     def output(self):
+        ctime = time.time()
+        if (ctime - self.last_time) < self.interval:
+            return
+        self.last_time = ctime
+
         parts = []
         if self.orientation:
             for comp in self.orientation:
@@ -59,12 +68,12 @@ class Listener(libmyo.DeviceListener):
         self.rssi = rssi
         self.output()
 
-    def on_event(self, event):
+    def on_event(self, kind, event):
         """
         Called before any of the event callbacks.
         """
 
-    def on_event_finished(self, event):
+    def on_event_finished(self, kind, event):
         """
         Called after the respective event callbacks have been
         invoked. This method is *always* triggered, even if one of
@@ -120,6 +129,9 @@ class Listener(libmyo.DeviceListener):
 
 
 def main():
+    print("Connecting to Myo ... Use CTRL^C to exit.")
+    print("If nothing happens, make sure the Bluetooth adapter is plugged in,")
+    print("Myo Connect is running and your Myo is put on.")
     hub = libmyo.Hub()
     hub.set_locking_policy(libmyo.LockingPolicy.none)
     hub.run(1000, Listener())
@@ -127,12 +139,13 @@ def main():
     # Listen to keyboard interrupts and stop the hub in that case.
     try:
         while hub.running:
-            time.sleep(0.5)
+            time.sleep(0.25)
     except KeyboardInterrupt:
         print("\nQuitting ...")
     finally:
-        hub.stop(True)
-    hub.shutdown()
+        print("Shutting down hub...")
+        hub.shutdown()
+
 
 if __name__ == '__main__':
     main()

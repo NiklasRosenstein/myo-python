@@ -74,6 +74,13 @@ class Quaternion(object):
     def __getitem__(self, index):
         return (self.x, self.y, self.z, self.w)[index]
 
+    def copy(self):
+        """
+        Returns a shallow copy of the quaternion.
+        """
+
+        return Quaternion(self.x, self.y, self.z, self.w)
+
     def magnitude(self):
         """
         Returns the magnitude of the quaternion.
@@ -120,7 +127,7 @@ class Quaternion(object):
         return type(vec)(qvec.x, qvec.y, qvec.z)
 
     @staticmethod
-    def idenitity():
+    def identity():
         """
         Returns the identity :class:`Quaternion`.
         """

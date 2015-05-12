@@ -83,6 +83,13 @@ class Vector(object):
     def __getitem__(self, index):
         return (self.x, self.y, self.z)[index]
 
+    def copy(self):
+        """
+        Returns a shallow copy of the vector.
+        """
+
+        return Vector(self.x, self.y, self.z)
+
     def magnitude(self):
         """
         Return the magnitude of this vector.

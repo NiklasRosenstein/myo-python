@@ -142,12 +142,11 @@ class Hub(object):
         with self._lock:
             self._exception = None
 
-    def pair_any(self, n=1):
-        with self._lock:
-            self._assert_running()
-            self._hub.pair_any(n)
-
     def set_locking_policy(self, locking_policy):
+        """
+        Sets the locking policy.
+        """
+
         with self._lock:
             self._hub.set_locking_policy(locking_policy)
 
@@ -215,7 +214,7 @@ class Hub(object):
         # This is the worker function that is running in
         # a new thread.
         def worker():
-            while not self.stopped:
+            while not self.stop_requested:
                 if not self._run(interval_ms, listener):
                     self.stop()
 
@@ -232,18 +231,22 @@ class Hub(object):
             time.sleep(lil_sleep)
 
     def stop(self, join=False):
-        r""" Request the Stop of the Hub when it is running. When
+        """
+        Request the Stop of the Hub when it is running. When
         *join* is True, this function will block the current thread
-        until the Hub is not :attr:`running` anymore. """
+        until the Hub is not :attr:`running` anymore.
+        """
 
         with self._lock:
             self._stopped = True
         if join: self.join()
 
     def join(self, timeout=None):
-        r""" If the Hub was run with a thread, it can be joined (waiting
+        """
+        If the Hub was run with a thread, it can be joined (waiting
         blocked) with this method. If the Hub was not started within a
-        thread, this method will do nothing. """
+        thread, this method will do nothing.
+        """
 
         with self._lock:
             if not self._thread:
@@ -259,9 +262,16 @@ class Hub(object):
                 self._thread = None
 
     def shutdown(self):
-        r""" Shut the hub down. Will happen automatically when
-        the Hub is being deleted. This method will cause the Hub
-        to stop if it was still running. """
+        """
+        Shut the hub down. If the hub is still running, it will be
+        stopped right where it is. Call it before the hub is being
+        garbage collected, or a warning will be printed that it has not
+        been called.
+
+        Do not call this method from a DeviceListener as it would
+        cause the current thread to be joined which is not possible.
+        Use :meth:`stop` to request a stop.
+        """
 
         self.stop()
         try:
@@ -273,44 +283,7 @@ class Hub(object):
         self._hub.shutdown()
 
 
-class Event(object):
-    """
-    Copy of a Myo SDK event object that can be accessed even
-    after the event has been destroyed. Must be constructed with
-    a :class:`myo.lowlevel.event_t` object.
-
-    This type of object is passed to :meth:`DeviceListener.on_event`.
-    """
-
-    def __init__(self, low_event):
-        if not isinstance(low_event, _myo.Event):
-            raise TypeError('expected event_t object')
-        super(Event, self).__init__()
-        self.type = low_event.type
-        self.myo = low_event.myo
-        self.timestamp = low_event.timestamp
-
-        if self.type in [EventType.paired, EventType.connected]:
-            self.firmware_version = low_event.firmware_version
-        elif self.type == EventType.orientation:
-            self.orientation = low_event.orientation
-            self.acceleration = low_event.acceleration
-            self.gyroscope = low_event.gyroscope
-        elif self.type == EventType.pose:
-            self.pose = low_event.pose
-        elif self.type == EventType.rssi:
-            self.rssi = low_event.rssi
-        elif self.type == EventType.emg:
-            self.emg = low_event.emg
-        elif self.type == EventType.arm_synced:
-            self.arm = low_event.arm
-            self.x_direction = low_event.x_direction
-
-    def __str__(self):
-        return '<Event %s>' % self.type
-
-
-def _invoke_listener(listener, event_ptr):
+def _invoke_listener(listener, event):
     """
     Invokes the :class:`DeviceListener` callback methods for
     the specified :class:`event<myo.lowlevel.event_t>`. If any
@@ -322,11 +295,11 @@ def _invoke_listener(listener, event_ptr):
     event when any of the calls in between returned False already.
     """
 
-    event = Event(event_ptr)
     myo = event.myo
     timestamp = event.timestamp
 
-    # Invokes a method on the listener.
+    # Invokes a method on the listener. If defaults=True, will prepend
+    # the myo and timestamp argument to *args.
     def _(name, *args, **kwargs):
         defaults = kwargs.pop('defaults', True)
         if kwargs:
@@ -346,10 +319,12 @@ def _invoke_listener(listener, event_ptr):
         return result
 
     kind = event.type
-    result = _('on_event', event, defaults=False)
+    result = _('on_event', kind, event, defaults=False)
 
     if kind == EventType.paired:
         result = result and _('on_pair')
+    elif kind == EventType.unpaired:
+        result = result and _('on_unpair')
     elif kind == EventType.connected:
         result = result and _('on_connect')
     elif kind == EventType.disconnected:
@@ -373,9 +348,9 @@ def _invoke_listener(listener, event_ptr):
     elif kind == EventType.locked:
         result = result and _('on_lock')
     else:
-        print('invalid event type: %s' % kind)
+        raise RuntimeError('invalid event type: %s' % kind)
 
-    if not _('on_event_finished', event, defaults=False):
+    if not _('on_event_finished', kind, event, defaults=False):
         result = False
     return result
 
