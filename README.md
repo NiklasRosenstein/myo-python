@@ -1,15 +1,8 @@
 # Python bindings for the Myo SDK
 
-*Version 0.2.0-dev*
+The Python `myo` package is a ctypes based wrapper for the Myo shared libraries provided by Thalmic Labs. The aim is to provide a complete Python interface for the Myo SDK as a high level API to developers using Pytho 2 or 3.
 
-The Python `myo` package is a ctypes based wrapper for the Myo shared
-libraries provided by Thalmic Labs. The aim is to provide a complete Python
-interface for the Myo SDK as a high level API to developers using Pytho 2
-or 3.
-
-There are two ways you can use the Myo bindings, by polling data or by
-getting push notifications. Basically, your way to start and end a
-connection with Myo(s) is like this:
+There are two ways you can use the Myo bindings, by polling data or by getting push notifications. Basically, your way to start and end a connection with Myo(s) is like this:
 
 ```python
 import myo as libmyo; libmyo.init()
@@ -24,24 +17,15 @@ finally:
     hub.shutdown()
 ```
 
-> *Note*: It is very important that you wrap everything in a try-finally
-> clause to be able to shut down the hub when you want to exit the
-> application as the Hub starts a non-daemon thread. Also, if the hub
-> is garbage collected without it being `shutdown()`, a warning will
-> be printed.
+> *Note*: It is very important that you wrap everything in a try-finally clause to be able to shut down the hub when you want to exit the application as the Hub starts a non-daemon thread. Also, if the hub is garbage collected without it being `shutdown()`, a warning will be printed.
 
-By the way, we prefer to import the `myo` package as `libmyo` as it is
-very likely you will have a `myo` variable in your local scope that
-represents a single armband.
+By the way, we prefer to import the `myo` package as `libmyo` as it is very likely you will have a `myo` variable in your local scope that represents a single armband.
 
 ## Pushing
 
-You must implement the `myo.device_listener.DeviceListener` class and
-pass an instance of it to `myo.Hub.run()`. Any event that is sent via
-the Myo will end up in your listener.
+You must implement the `myo.device_listener.DeviceListener` class and pass an instance of it to `myo.Hub.run()`. Any event that is sent via the Myo will end up in your listener.
 
-Generally, implementing a `DeviceListener` should be preferred if it
-will not involve any more complexities in your application.
+Generally, implementing a `DeviceListener` should be preferred if it will not involve any more complexities in your application.
 
 ```python
 class Listener(libmyo.DeviceListener):
@@ -58,9 +42,7 @@ class Listener(libmyo.DeviceListener):
 
 ## Pulling
 
-Pulling can be done by using an instance of `myo.device_listener.Feed`
-as the listener to `Hub.run()`. The Feed will cache any data when its
-received and it can be accessed through a MyoProxy object at any time.
+Pulling can be done by using an instance of `myo.device_listener.Feed` as the listener to `Hub.run()`. The Feed will cache any data when its received and it can be accessed through a MyoProxy object at any time.
 
 ```python
 feed = libmyo.device_listener.Feed()
@@ -89,10 +71,8 @@ Check the [examples](examples/) directory for more.
 ## Getting Started
 
 1. Download myo-python or clone it from GitHub
-2. Install it, for testing with `pip install -e myo-python/` or add
-   it to your `PYTHONPATH`
-3. Make sure myo-python can find the Myo SDK binaries by adding it to
-   `PATH` either outside or inside your Python application/script
+2. Install it, for testing with `pip install -e myo-python/` or add it to your `PYTHONPATH`
+3. Make sure myo-python can find the Myo SDK binaries by adding it to `PATH` either outside or inside your Python application/script
 
 You can download the Myo SDK from [here](https://developer.thalmic.com/downloads).
 
@@ -114,9 +94,7 @@ You can download the Myo SDK from [here](https://developer.thalmic.com/downloads
     $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/myo-sdk-mac-0.8.1/myo.framework
     $ python3 myo-python/examples/hello_myo.py
 
-## Contributors
-
-- Justin Harris
+For a list of all contributors, see [here](https://github.com/NiklasRosenstein/myo-python/graphs/contributors).
 
 ------------------------------------------------------------------------
 
