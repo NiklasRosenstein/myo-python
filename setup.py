@@ -8,6 +8,6 @@ setup(
   author='Niklas Rosenstein',
   author_email='rosensteinniklas@gmail.com',
   url='https://github.com/NiklasRosenstein/myo-python',
-  packages=['myo'],
+  packages=['myo', 'myo.lowlevel', 'myo.utils'],
   install_requires=['six'],
 )
