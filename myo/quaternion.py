@@ -26,6 +26,11 @@ following requirements:
 - It's constructor accepts the ``x``, ``y`` and ``z`` components in
   that very order
 - Instances have the attributes ``x``, ``y`` and ``z
+
+References
+----------
+
+Roll, Pitch and Yaw: http://answers.unity3d.com/questions/416169/finding-pitchrollyaw-from-quaternions.html
 """
 
 import math
@@ -125,6 +130,37 @@ class Quaternion(object):
 
         qvec = self * Quaternion(vec.x, vec.y, vec.z, 0) * ~self
         return type(vec)(qvec.x, qvec.y, qvec.z)
+
+    @property
+    def roll(self):
+        """ Calculates the Roll of the Quaternion. """
+
+        x, y, z, w = self.x, self.y, self.z, self.w
+        return math.atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z)
+
+    @property
+    def pitch(self):
+        """ Calculates the Pitch of the Quaternion. """
+
+        x, y, z, w = self.x, self.y, self.z, self.w
+        return math.atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z)
+
+    @property
+    def yaw(self):
+        """ Calculates the Yaw of the Quaternion. """
+
+        x, y, z, w = self.x, self.y, self.z, self.w
+        return math.asin(2*x*y + 2*z*w)
+
+    @property
+    def rpy(self):
+        """ Calculates the Roll, Pitch and Yaw of the Quaternion. """
+
+        x, y, z, w = self.x, self.y, self.z, self.w
+        roll = math.atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z)
+        pitch = math.atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z)
+        yaw = math.asin(2*x*y + 2*z*w)
+        return (roll, pitch, yaw)
 
     @staticmethod
     def identity():

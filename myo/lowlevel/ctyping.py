@@ -31,6 +31,7 @@ from ..quaternion import Quaternion
 
 import abc
 import ctypes
+import os
 import six
 import sys
 import warnings
