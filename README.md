@@ -114,6 +114,10 @@ You can download the Myo SDK from [here](https://developer.thalmic.com/downloads
     $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/myo-sdk-mac-0.8.1/myo.framework
     $ python3 myo-python/examples/hello_myo.py
 
+## Contributors
+
+- Justin Harris
+
 ------------------------------------------------------------------------
 
 This project is licensed under the MIT License. Copyright &copy; 2015 Niklas Rosenstein
