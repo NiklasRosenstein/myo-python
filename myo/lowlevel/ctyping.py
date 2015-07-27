@@ -70,7 +70,7 @@ class MyoLibrary(object):
     __bool__ = __nonzero__  # Python 3
     initialized = __nonzero__
 
-    def init(self, dist_path=None, add_to_path=True):
+    def init(self, dist_path=None):
         """
         Initializes the :class:`MyoLibrary` by detecting the name
         of the library to load with :mod:`ctypes` based on the
@@ -78,14 +78,13 @@ class MyoLibrary(object):
 
         :param dist_path: If specified, must point to the directory
             where the Myo shared library is located.
-        :param add_to_path: If specified, the *dist_path* is
-            added to ``PATH`` instead of it being loaded with
-            an absolute filename.
         :raise RuntimeError: If the library is already initialized.
         :raise EnvironmentError: If the current platform is not
             supported. Usually raised already by
             :mod:`myo.utils.platform`.
         :raise OSError: If the library could not be loaded.
+
+        *Changed in 0.2.1* - Removed ``add_to_path`` parameter.
         """
 
         if self._lib is not None:
@@ -113,15 +112,7 @@ class MyoLibrary(object):
         # is specified.
         if dist_path:
             dist_path = os.path.normpath(os.path.abspath(dist_path))
-
-            # Extend the PATH variable if that is desired.
-            if add_to_path:
-                PATH = os.environ['PATH']
-                os.environ['PATH'] = os.pathsep.join([dist_path, PATH])
-
-            # Or create an absolute filename.
-            else:
-                lib_name = os.path.join(dist_path, lib_name)
+            lib_name = os.path.join(dist_path, lib_name)
 
         # Load the library. Could raise OSError.
         self._lib = ctypes.cdll.LoadLibrary(lib_name)

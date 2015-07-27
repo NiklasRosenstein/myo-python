@@ -26,7 +26,7 @@
 """
 
 __author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
-__version__ = '0.2.0'
+__version__ = '0.2.1-dev'
 __license__ = 'MIT'
 
 from .lowlevel import enums
