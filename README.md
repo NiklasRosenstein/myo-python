@@ -72,27 +72,36 @@ Check the [examples](examples/) directory for more.
 
 1. Download myo-python or clone it from GitHub
 2. Install it, for testing with `pip install -e myo-python/` or add it to your `PYTHONPATH`
-3. Make sure myo-python can find the Myo SDK binaries by adding it to `PATH` either outside or inside your Python application/script
+3. [Download the Myo SDK](https://developer.thalmic.com/downloads) and make sure make it's in your `PATH`
 
-You can download the Myo SDK from [here](https://developer.thalmic.com/downloads).
+> These example assume that the Myo SDK is inside your current working directory.
+
+### Windows
+
+    > git clone git@github.com:NiklasRosenstein/myo-python.git
+    > virtualenv env --no-site-packages
+    > env/Scripts/activate
+    > pip install -e .
+    > set PATH=%PATH%;.\myo-sdk-win-0.8.1\bin
+    > python myo-python\examples\hello_myo.py
 
 ### Windows (Cygwin)
 
-    $ git clone git@github.com:NiklasRosenstein/myo-python
+    $ git clone git@github.com:NiklasRosenstein/myo-python.git
     $ virtualenv env --no-site-packages
     $ source env/bin/activate
-    $ pip install -e myo-python
+    $ pip install -e .
     $ export PATH=$PATH:$(pwd)/myo-sdk-win-0.8.1/bin
-    $ python3 myo-python/examples/hello_myo.py
+    $ python myo-python/examples/hello_myo.py
 
 ### Mac
 
-    $ git clone git@github.com:NiklasRosenstein/myo-python
+    $ git clone git@github.com:NiklasRosenstein/myo-python.git
     $ virtualenv env --no-site-packages
     $ source env/bin/activate
-    $ pip install -e myo-python
+    $ pip install -e .
     $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/myo-sdk-mac-0.8.1/myo.framework
-    $ python3 myo-python/examples/hello_myo.py
+    $ python myo-python/examples/hello_myo.py
 
 For a list of all contributors, see [here](https://github.com/NiklasRosenstein/myo-python/graphs/contributors).
 
