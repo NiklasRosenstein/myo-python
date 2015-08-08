@@ -1,5 +1,7 @@
 # Python bindings for the Myo SDK
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiklasRosenstein/myo-python?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 The Python `myo` package is a ctypes based wrapper for the Myo shared libraries provided by Thalmic Labs. The aim is to provide a complete Python interface for the Myo SDK as a high level API to developers using Pytho 2 or 3.
 
 There are two ways you can use the Myo bindings, by polling data or by getting push notifications. Basically, your way to start and end a connection with Myo(s) is like this:
