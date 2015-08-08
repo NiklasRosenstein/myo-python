@@ -157,9 +157,12 @@ class Listener(libmyo.DeviceListener):
 
 def main():
     print("Connecting to Myo ... Use CTRL^C to exit.")
-    print("If nothing happens, make sure the Bluetooth adapter is plugged in,")
-    print("Myo Connect is running and your Myo is put on.")
-    hub = libmyo.Hub()
+    try:
+        hub = libmyo.Hub()
+    except MemoryError:
+        print("Myo Hub could not be created. Make sure Myo Connect is running.")
+        return
+
     hub.set_locking_policy(libmyo.LockingPolicy.none)
     hub.run(1000, Listener())
 

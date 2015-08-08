@@ -23,10 +23,14 @@ import myo as libmyo; libmyo.init()
 import time
 
 def main():
-    feed = libmyo.device_listener.Feed()
-    hub = libmyo.Hub()
-    hub.run(1000, feed)
+    try:
+        hub = libmyo.Hub()
+    except MemoryError:
+        print("Myo Hub could not be created. Make sure Myo Connect is running.")
+        return
 
+    feed = libmyo.device_listener.Feed()
+    hub.run(1000, feed)
     try:
         print("Waiting for a Myo to connect ...")
         myo = feed.wait_for_single_device(2)
