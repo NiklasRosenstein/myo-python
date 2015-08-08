@@ -1,6 +1,7 @@
 # Python bindings for the Myo SDK
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiklasRosenstein/myo-python?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiklasRosenstein/myo-python?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Code Issues](http://www.quantifiedcode.com/api/v1/project/cf45bc5553f14a799abd736fdb4c6441/badge.svg)](http://www.quantifiedcode.com/app/project/cf45bc5553f14a799abd736fdb4c6441)
+
 
 The Python `myo` package is a ctypes based wrapper for the Myo shared libraries provided by Thalmic Labs. The aim is to provide a complete Python interface for the Myo SDK as a high level API to developers using Pytho 2 or 3.
 
