@@ -23,10 +23,6 @@ finally:
 
 By the way, we prefer to import the `myo` package as `libmyo` as it is very likely you will have a `myo` variable in your local scope that represents a single armband.
 
-## Projects using Myo Python
-
-- [Myo Matlab](https://github.com/yijuilee/myomatlab)
-
 ## Pushing
 
 You must implement the `myo.device_listener.DeviceListener` class and pass an instance of it to `myo.Hub.run()`. Any event that is sent via the Myo will end up in your listener.
@@ -110,6 +106,10 @@ Check the [examples](examples/) directory for more.
     $ python myo-python/examples/hello_myo.py
 
 For a list of all contributors, see [here](https://github.com/NiklasRosenstein/myo-python/graphs/contributors).
+
+## Projects using Myo Python
+
+- [Myo Matlab](https://github.com/yijuilee/myomatlab)
 
 ------------------------------------------------------------------------
 
