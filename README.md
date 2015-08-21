@@ -2,7 +2,6 @@
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiklasRosenstein/myo-python?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Code Issues](http://www.quantifiedcode.com/api/v1/project/cf45bc5553f14a799abd736fdb4c6441/badge.svg)](http://www.quantifiedcode.com/app/project/cf45bc5553f14a799abd736fdb4c6441)
 
-
 The Python `myo` package is a ctypes based wrapper for the Myo shared libraries provided by Thalmic Labs. The aim is to provide a complete Python interface for the Myo SDK as a high level API to developers using Pytho 2 or 3.
 
 There are two ways you can use the Myo bindings, by polling data or by getting push notifications. Basically, your way to start and end a connection with Myo(s) is like this:
@@ -23,6 +22,10 @@ finally:
 > *Note*: It is very important that you wrap everything in a try-finally clause to be able to shut down the hub when you want to exit the application as the Hub starts a non-daemon thread. Also, if the hub is garbage collected without it being `shutdown()`, a warning will be printed.
 
 By the way, we prefer to import the `myo` package as `libmyo` as it is very likely you will have a `myo` variable in your local scope that represents a single armband.
+
+## Projects using Myo Python
+
+- [Myo Matlab](https://github.com/yijuilee/myomatlab)
 
 ## Pushing
 
