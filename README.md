@@ -32,7 +32,7 @@ Generally, implementing a `DeviceListener` should be preferred if it will not in
 ```python
 class Listener(libmyo.DeviceListener):
 
-    def on_pair(self, myo, timestamp):
+    def on_pair(self, myo, timestamp, firmware_version):
         print("Hello, Myo!")
 
     def on_unpair(self, myo, timestamp):
@@ -84,7 +84,7 @@ Check the [examples](examples/) directory for more.
     > virtualenv env --no-site-packages
     > env/Scripts/activate
     > pip install -e .
-    > set PATH=%PATH%;.\myo-sdk-win-0.8.1\bin
+    > set PATH=%PATH%;.\myo-sdk-win-0.9.0\bin
     > python myo-python\examples\hello_myo.py
 
 ### Windows (Cygwin)
@@ -93,7 +93,7 @@ Check the [examples](examples/) directory for more.
     $ virtualenv env --no-site-packages
     $ source env/bin/activate
     $ pip install -e .
-    $ export PATH=$PATH:$(pwd)/myo-sdk-win-0.8.1/bin
+    $ export PATH=$PATH:$(pwd)/myo-sdk-win-0.9.0/bin
     $ python myo-python/examples/hello_myo.py
 
 ### Mac
@@ -102,7 +102,7 @@ Check the [examples](examples/) directory for more.
     $ virtualenv env --no-site-packages
     $ source env/bin/activate
     $ pip install -e .
-    $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/myo-sdk-mac-0.8.1/myo.framework
+    $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/myo-sdk-mac-0.9.0/myo.framework
     $ python myo-python/examples/hello_myo.py
 
 For a list of all contributors, see [here](https://github.com/NiklasRosenstein/myo-python/graphs/contributors).
