@@ -35,6 +35,7 @@ import os
 import six
 import sys
 import warnings
+import traceback
 
 from six.moves import range
 from ctypes import byref, POINTER, PYFUNCTYPE, py_object
@@ -226,7 +227,7 @@ class Hub(BaseTypeWrapper):
         lib.init_func(
             'run', enums.Result,
             Hub, c_uint, HandlerCallback, py_object,
-            ErrorDetails)
+            POINTER(ErrorDetails))
 
     def __init__(self):
         """
@@ -303,7 +304,8 @@ class Hub(BaseTypeWrapper):
 
         # Run the function which will block the current thread.
         error = ErrorDetails()
-        result = lib.run(self, duration_ms, HandlerCallback(wrapper), ud, byref(error))
+        result = lib.run(self, duration_ms, HandlerCallback(wrapper),
+                         ud, byref(error))
         error.raise_on_error()
 
         # Return True if the run was complete, meaning the callback
@@ -348,8 +350,20 @@ class Myo(BaseTypeWrapper):
             'request_rssi', enums.Result,
             Myo, POINTER(ErrorDetails))
         lib.init_func(
+            'request_battery_level', enums.Result,
+            Myo, POINTER(ErrorDetails))
+        lib.init_func(
             'set_stream_emg', enums.Result,
             Myo, enums.StreamEmg, POINTER(ErrorDetails))
+        lib.init_func(
+            'myo_unlock', enums.Result,
+            Myo, enums.UnlockType, POINTER(ErrorDetails))
+        lib.init_func(
+            'myo_lock', enums.Result,
+            Myo, POINTER(ErrorDetails))
+        lib.init_func(
+            'myo_notify_user_action', enums.Result,
+            Myo, enums.UserActionType, POINTER(ErrorDetails))
 
     def vibrate(self, vibration_type):
         self._notnull()
@@ -367,11 +381,44 @@ class Myo(BaseTypeWrapper):
         finally:
             error.raise_on_error()
 
-    def set_stream_emg(self, emg):
+    def request_battery_level(self):
         self._notnull()
         error = ErrorDetails()
         try:
-            return lib.set_stream_emg(self, emg, byref(error))
+            return lib.request_battery_level(self, byref(error))
+        finally:
+            error.raise_on_error()
+
+    def set_stream_emg(self, stream_emg):
+        self._notnull()
+        error = ErrorDetails()
+        try:
+            return lib.set_stream_emg(self, stream_emg, byref(error))
+        finally:
+            error.raise_on_error()
+
+    def myo_unlock(self, unlock_type):
+        self._notnull()
+        error = ErrorDetails()
+        try:
+            return lib.myo_unlock(self, unlock_type, byref(error))
+        finally:
+            error.raise_on_error()
+
+    def myo_lock(self):
+        self._notnull()
+        error = ErrorDetails()
+        try:
+            return lib.myo_lock(self, byref(error))
+        finally:
+            error.raise_on_error()
+
+    def myo_notify_user_action(self, user_action_type):
+        self._notnull()
+        error = ErrorDetails()
+        try:
+            return lib.myo_notify_user_action(
+                self, user_action_type, byref(error))
         finally:
             error.raise_on_error()
 
@@ -390,18 +437,22 @@ class Event(BaseTypeWrapper):
         lib.init_func('event_get_timestamp', c_uint64, Event)
         lib.init_func('event_get_myo', Myo, Event)
         lib.init_func('event_get_firmware_version', c_uint,
-            Event, enums.VersionComponent)
-        lib.init_func('event_get_orientation', c_float,
-            Event, enums.OrientationIndex)
-        lib.init_func('event_get_accelerometer', c_float,
-            Event, c_uint)
-        lib.init_func('event_get_gyroscope', c_float,
-            Event, c_uint)
-        lib.init_func('event_get_pose', enums.Pose, Event)
-        lib.init_func('event_get_rssi', c_int8, Event)
-        lib.init_func('event_get_emg', c_int8, Event, c_uint)
+                      Event, enums.VersionComponent)
         lib.init_func('event_get_arm', enums.Arm, Event)
         lib.init_func('event_get_x_direction', enums.XDirection, Event)
+        lib.init_func('event_get_warmup_state', enums.WarmupState, Event)
+        lib.init_func('event_get_warmup_result', enums.WarmupResult, Event)
+        lib.init_func('event_get_rotation_on_arm', c_float, Event)
+        lib.init_func('event_get_orientation', c_float,
+                      Event, enums.OrientationIndex)
+        lib.init_func('event_get_accelerometer', c_float,
+                      Event, c_uint)
+        lib.init_func('event_get_gyroscope', c_float,
+                      Event, c_uint)
+        lib.init_func('event_get_pose', enums.Pose, Event)
+        lib.init_func('event_get_rssi', c_int8, Event)
+        lib.init_func('event_get_battery_level', c_int8, Event)
+        lib.init_func('event_get_emg', c_int8, Event, c_uint)
 
     def _checktype(self, current_op, *types):
         """
@@ -465,7 +516,7 @@ class Event(BaseTypeWrapper):
         firmware_version -> (major, minor, patch)
 
         Returns the firmware version. Can only be called from a
-        *firmware_version* event
+        *paired* and *connected* event
         """
 
         self._checktype(
@@ -475,6 +526,66 @@ class Event(BaseTypeWrapper):
         minor = lib.event_get_firmware_version(self, enums.VersionComponent.minor)
         patch = lib.event_get_firmware_version(self, enums.VersionComponent.patch)
         return (major, minor, patch)
+
+    @property
+    def arm(self):
+        """
+        arm -> enums.Arm
+
+        Returns the arm the Myo is put on. Can only be called on an
+        *arm_synced* event.
+        """
+
+        self._checktype('get arm', enums.EventType.arm_synced)
+        return lib.event_get_arm(self)
+
+    @property
+    def x_direction(self):
+        """
+        x_direction -> enums.XDirection
+
+        Returns the X direction of the Myo. Can only be called on an
+        *arm_synced* event.
+        """
+
+        self._checktype('get x direction', enums.EventType.arm_synced)
+        return lib.event_get_x_direction(self)
+
+    @property
+    def warmup_state(self):
+        """
+        warmup_state -> enums.WarmupState
+
+        Returns the warmup state of the Myo. Can only be called on an
+        *arm_synced* event.
+        """
+
+        self._checktype('get warmup state', enums.EventType.arm_synced)
+        return lib.event_get_warmup_state(self)
+
+    @property
+    def warmup_result(self):
+        """
+        warmup_result -> enums.WarmupResult
+
+        Returns the warmup result of the Myo. Can only be called on an
+        *warmup_completed* event.
+        """
+
+        self._checktype('get warmup result', enums.EventType.warmup_completed)
+        return lib.event_get_warmup_result(self)
+
+    @property
+    def rotation(self):
+        """
+        rotation -> float
+
+        Returns the rotation on arm. Can only be called on an
+        *arm_synced* event.
+        """
+
+        self._checktype('get rotation', enums.EventType.arm_synced)
+        return lib.event_get_rotation_on_arm(self)
 
     @property
     def orientation(self):
@@ -546,6 +657,18 @@ class Event(BaseTypeWrapper):
         return lib.event_get_rssi(self)
 
     @property
+    def level(self):
+        """
+        level -> int (8)
+
+        Returns the battery level. Can only be called from an
+        *bettery_level* event.
+        """
+
+        self._checktype('get battery level', enums.EventType.bettery_level)
+        return lib.event_get_battery_level(self)
+
+    @property
     def emg(self):
         """
         emg -> tuple of 8 ints
@@ -555,30 +678,6 @@ class Event(BaseTypeWrapper):
 
         self._checktype('get emg', enums.EventType.emg)
         return tuple(lib.event_get_emg(self, i) for i in range(8))
-
-    @property
-    def arm(self):
-        """
-        arm -> enums.Arm
-
-        Returns the arm the Myo is put on. Can only be called on an
-        *arm_synced* event.
-        """
-
-        self._checktype('get arm', enums.EventType.arm_synced)
-        return lib.event_get_arm(self)
-
-    @property
-    def x_direction(self):
-        """
-        x_direction -> enums.XDirection
-
-        Returns the X direction of the Myo. Can only be called on an
-        *arm_synced* event.
-        """
-
-        self._checktype('get x direction', enums.EventType.arm_synced)
-        return lib.event_get_x_direction(self)
 
 
 # Callback function type for libmyo_run(). hub_t.run() expects
