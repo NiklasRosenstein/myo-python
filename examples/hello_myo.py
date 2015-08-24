@@ -35,11 +35,12 @@ class Listener(libmyo.DeviceListener):
 
     def __init__(self):
         super(Listener, self).__init__()
-        self.emg_enabled = False
         self.orientation = None
         self.pose = libmyo.Pose.rest
-        self.rssi = None
+        self.emg_enabled = False
         self.locked = False
+        self.rssi = None
+        self.emg = None
         self.last_time = 0
 
     def output(self):
@@ -56,16 +57,53 @@ class Listener(libmyo.DeviceListener):
         parts.append('E' if self.emg_enabled else ' ')
         parts.append('L' if self.locked else ' ')
         parts.append(self.rssi or 'NORSSI')
+        if self.emg:
+            for comp in self.emg:
+                parts.append(str(comp).ljust(5))
         print('\r' + ''.join('[{0}]'.format(p) for p in parts), end='')
         sys.stdout.flush()
 
-    def on_connect(self, myo, timestamp):
+    def on_connect(self, myo, timestamp, firmware_version):
         myo.vibrate('short')
         myo.vibrate('short')
         myo.request_rssi()
+        myo.request_battery_level()
 
     def on_rssi(self, myo, timestamp, rssi):
         self.rssi = rssi
+        self.output()
+
+    def on_pose(self, myo, timestamp, pose):
+        if pose == libmyo.Pose.double_tap:
+            myo.set_stream_emg(libmyo.StreamEmg.enabled)
+            self.emg_enabled = True
+        elif pose == libmyo.Pose.fingers_spread:
+            myo.set_stream_emg(libmyo.StreamEmg.disabled)
+            self.emg_enabled = False
+            self.emg = None
+        self.pose = pose
+        self.output()
+
+    def on_orientation_data(self, myo, timestamp, orientation):
+        self.orientation = orientation
+        self.output()
+
+    def on_accelerometor_data(self, myo, timestamp, acceleration):
+        pass
+
+    def on_gyroscope_data(self, myo, timestamp, gyroscope):
+        pass
+
+    def on_emg_data(self, myo, timestamp, emg):
+        self.emg = emg
+        self.output()
+
+    def on_unlock(self, myo, timestamp):
+        self.locked = False
+        self.output()
+
+    def on_lock(self, myo, timestamp):
+        self.locked = True
         self.output()
 
     def on_event(self, kind, event):
@@ -80,9 +118,14 @@ class Listener(libmyo.DeviceListener):
         the callbacks requested the stop of the Hub.
         """
 
-    def on_pair(self, myo, timestamp):
+    def on_pair(self, myo, timestamp, firmware_version):
         """
         Called when a Myo armband is paired.
+        """
+
+    def on_unpair(self, myo, timestamp):
+        """
+        Called when a Myo armband is unpaired.
         """
 
     def on_disconnect(self, myo, timestamp):
@@ -90,42 +133,26 @@ class Listener(libmyo.DeviceListener):
         Called when a Myo is disconnected.
         """
 
-    def on_pose(self, myo, timestamp, pose):
-        if pose == libmyo.Pose.double_tap:
-            myo.set_stream_emg(libmyo.StreamEmg.enabled)
-            self.emg_enabled = True
-        elif pose == libmyo.Pose.fingers_spread:
-            myo.set_stream_emg(libmyo.StreamEmg.disabled)
-            self.emg_enabled = False
-        self.pose = pose
-        self.output()
+    def on_arm_sync(self, myo, timestamp, arm, x_direction, rotation,
+                    warmup_state):
+        """
+        Called when a Myo armband and an arm is synced.
+        """
 
-    def on_orientation_data(self, myo, timestamp, orientation):
-        self.orientation = orientation
-        self.output()
+    def on_arm_unsync(self, myo, timestamp):
+        """
+        Called when a Myo armband and an arm is unsynced.
+        """
 
-    def on_accelerometor_data(self, myo, timestamp, acceleration):
-        pass
+    def on_battery_level_received(self, myo, timestamp, level):
+        """
+        Called when the requested battery level received.
+        """
 
-    def on_gyroscope_data(self, myo, timestamp, gyroscope):
-        pass
-
-    def on_unlock(self, myo, timestamp):
-        self.locked = False
-        self.output()
-
-    def on_lock(self, myo, timestamp):
-        self.locked = True
-        self.output()
-
-    def on_sync(self, myo, timestamp, arm, x_direction):
-        pass
-
-    def on_unsync(self, myo, timestamp):
-        pass
-
-    def on_emg(self, myo, timestamp, emg):
-        pass
+    def on_warmup_completed(self, myo, timestamp, warmup_result):
+        """
+        Called when the warmup completed.
+        """
 
 
 def main():

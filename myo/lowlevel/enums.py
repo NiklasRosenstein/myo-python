@@ -21,7 +21,7 @@
 __all__ = [
     'Result', 'VibrationType', 'StreamEmg', 'Pose', 'EventType',
     'VersionComponent', 'OrientationIndex', 'HandlerResult', 'LockingPolicy',
-    'Arm', 'XDirection',
+    'Arm', 'XDirection', 'UnlockType', 'UserActionType', 'WarmupState', 'WarmupResult',
 
     # Backwards compatibility
     'result_t', 'vibration_type_t', 'stream_emg', 'pose_t', 'event_type_t',
@@ -77,6 +77,8 @@ class EventType(Enumeration):
     unlocked = 9
     locked = 10
     emg = 11
+    bettery_level = 12
+    warmup_completed = 13
     __fallback__ = -1
 
 
@@ -102,8 +104,8 @@ class HandlerResult(Enumeration):
 
 
 class LockingPolicy(Enumeration):
-    none = 0     # Pose events are always sent.
-    standard = 1 # (default) Pose events are not sent while a Myo is locked.
+    none = 0      # Pose events are always sent.
+    standard = 1  # (default) Pose events are not sent while a Myo is locked.
     __fallback__ = -1
 
 
@@ -118,6 +120,31 @@ class XDirection(Enumeration):
     toward_wrist = 0
     toward_elbow = 1
     unknown = 2
+    __fallback__ = -1
+
+
+class UnlockType(Enumeration):
+    timed = 0
+    hold = 1
+    __fallback__ = -1
+
+
+class UserActionType(Enumeration):
+    single = 0
+    __fallback__ = -1
+
+
+class WarmupState(Enumeration):
+    unknown = 0
+    cold = 1
+    warm = 2
+    __fallback__ = -1
+
+
+class WarmupResult(Enumeration):
+    unknown = 0
+    success = 1
+    failed_timeout = 2
     __fallback__ = -1
 
 

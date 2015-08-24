@@ -54,16 +54,29 @@ class DeviceListener(six.with_metaclass(abc.ABCMeta)):
         the callbacks requested the stop of the Hub.
         """
 
-    def on_pair(self, myo, timestamp):
+    def on_pair(self, myo, timestamp, firmware_version):
         pass
 
     def on_unpair(self, myo, timestamp):
         pass
 
-    def on_connect(self, myo, timestamp):
+    def on_connect(self, myo, timestamp, firmware_version):
         pass
 
     def on_disconnect(self, myo, timestamp):
+        pass
+
+    def on_arm_sync(self, myo, timestamp, arm, x_direction, rotation,
+                    warmup_state):
+        pass
+
+    def on_arm_unsync(self, myo, timestamp):
+        pass
+
+    def on_unlock(self, myo, timestamp):
+        pass
+
+    def on_lock(self, myo, timestamp):
         pass
 
     def on_pose(self, myo, timestamp, pose):
@@ -81,19 +94,13 @@ class DeviceListener(six.with_metaclass(abc.ABCMeta)):
     def on_rssi(self, myo, timestamp, rssi):
         pass
 
-    def on_emg(self, myo, timestamp, emg):
+    def on_battery_level_received(self, myo, timestamp, level):
         pass
 
-    def on_unsync(self, myo, timestamp):
+    def on_emg_data(self, myo, timestamp, emg):
         pass
 
-    def on_sync(self, myo, timestamp, arm, x_direction):
-        pass
-
-    def on_unlock(self, myo, timestamp):
-        pass
-
-    def on_lock(self, myo, timestamp):
+    def on_warmup_completed(self, myo, timestamp, warmup_result):
         pass
 
 
@@ -123,7 +130,8 @@ class Feed(DeviceListener):
 
     class MyoProxy(object):
 
-        __slots__ = ('synchronized,_pair_time,_unpair_time,_connect_time,'
+        __slots__ = (
+            'synchronized,_pair_time,_unpair_time,_connect_time,'
             '_disconnect_time,_myo,_emg,_orientation,_acceleration,'
             '_gyroscope,_pose,_arm,_xdir,_rssi,_firmware_version').split(',')
 
@@ -161,8 +169,10 @@ class Feed(DeviceListener):
         @property
         def connected(self):
             with self.synchronized:
-                return (self._connect_time is not None and
-                    self._disconnect_time is None)
+                return (
+                    self._connect_time is not None and
+                    self._disconnect_time is None
+                )
 
         @property
         def paired(self):
@@ -323,7 +333,8 @@ class Feed(DeviceListener):
                 self.synchronized.notify_all()
                 return True
             elif kind == EventType.unpaired:
-                try: proxy = self._myos.pop(myo.value)
+                try:
+                    proxy = self._myos.pop(myo.value)
                 except KeyError:
                     message = "Myo 0x{0:x} was not in the known Myo's list"
                     warnings.warn(message.format(myo.value), RuntimeWarning)
@@ -336,7 +347,8 @@ class Feed(DeviceListener):
                     self.synchronized.notify_all()
                 return True
             else:
-                try: proxy = self._myos[myo.value]
+                try:
+                    proxy = self._myos[myo.value]
                 except KeyError:
                     message = "Myo 0x{0:x} was not in the known Myo's list"
                     warnings.warn(message.format(myo.value), RuntimeWarning)

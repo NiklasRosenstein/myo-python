@@ -322,13 +322,22 @@ def _invoke_listener(listener, event):
     result = _('on_event', kind, event, defaults=False)
 
     if kind == EventType.paired:
-        result = result and _('on_pair')
+        result = result and _('on_pair', event.firmware_version)
     elif kind == EventType.unpaired:
         result = result and _('on_unpair')
     elif kind == EventType.connected:
-        result = result and _('on_connect')
+        result = result and _('on_connect', event.firmware_version)
     elif kind == EventType.disconnected:
         result = result and _('on_disconnect')
+    elif kind == EventType.arm_synced:
+        result = result and _('on_arm_sync', event.arm, event.x_direction,
+                              event.rotation, event.warmup_state)
+    elif kind == EventType.arm_unsynced:
+        result = result and _('on_arm_unsync')
+    elif kind == EventType.unlocked:
+        result = result and _('on_unlock')
+    elif kind == EventType.locked:
+        result = result and _('on_lock')
     elif kind == EventType.pose:
         result = result and _('on_pose', event.pose)
     elif kind == EventType.orientation:
@@ -337,16 +346,12 @@ def _invoke_listener(listener, event):
         result = result and _('on_gyroscope_data', event.gyroscope)
     elif kind == EventType.rssi:
         result = result and _('on_rssi', event.rssi)
+    elif kind == EventType.bettery_level:
+        result = result and _('on_battery_level_received', event.level)
     elif kind == EventType.emg:
-        result = result and _('on_emg', event.emg)
-    elif kind == EventType.arm_unsynced:
-        result = result and _('on_unsync')
-    elif kind == EventType.arm_synced:
-        result = result and _('on_sync', event.arm, event.x_direction)
-    elif kind == EventType.unlocked:
-        result = result and _('on_unlock')
-    elif kind == EventType.locked:
-        result = result and _('on_lock')
+        result = result and _('on_emg_data', event.emg)
+    elif kind == EventType.warmup_completed:
+        result = result and _('on_warmup_completed', event.warmup_result)
     else:
         raise RuntimeError('invalid event type: %s' % kind)
 
