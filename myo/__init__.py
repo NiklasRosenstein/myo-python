@@ -39,7 +39,7 @@ __all__ = [
 
 # The version of the Myo SDK that the library was recently
 # updated for.
-myo_sdk_version = '0.8.1'
+myo_sdk_version = '0.9.0'
 
 from . import lowlevel as _myo
 from .lowlevel import error, ResultError, InvalidOperation
@@ -51,6 +51,7 @@ import time
 import threading
 import traceback
 import sys
+import warnings
 
 init = myo_init = _myo.lib.init
 myo_initialized = _myo.lib.initialized
@@ -353,7 +354,8 @@ def _invoke_listener(listener, event):
     elif kind == EventType.warmup_completed:
         result = result and _('on_warmup_completed', event.warmup_result)
     else:
-        raise RuntimeError('invalid event type: %s' % kind)
+        warnings.warn('unknown myo.EventType, maybe you have a new Myo SDK that '
+            'introduced new event types or you need to update myo-python', RuntimeWarning)
 
     if not _('on_event_finished', kind, event, defaults=False):
         result = False
