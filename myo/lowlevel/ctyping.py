@@ -318,7 +318,8 @@ class Hub(BaseTypeWrapper):
         after calling this function.
         """
 
-        self._notnull()
+        if not self.value:
+            return None  # already shut down
         error = ErrorDetails()
         result = lib.shutdown_hub(self, byref(error))
         self.value = None

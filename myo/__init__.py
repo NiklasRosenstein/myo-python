@@ -72,29 +72,35 @@ class Hub(object):
     def __init__(self):
         super(Hub, self).__init__()
         self._lock = threading.RLock()
-        self._hub = _myo.Hub()
         self._running = False
         self._stopped = False
         self._exception = None
         self._thread = None
+        self._hub = None
+        self._locking_policy = LockingPolicy.none
+        self._new()
 
     def __str__(self):
         parts = ['<Hub ']
-        if not self._hub:
-            parts.append('shut down')
-        else:
-            with self._lock:
-                if self._running:
-                    parts.append('running')
+        with self._lock:
+            if self._running:
                 if self._stopped:
-                    parts.append('stop-requested')
-
-        return ' ,'.join(parts) + '>'
+                    parts.append('stop requested')
+                else:
+                    parts.append('running')
+            else:
+                parts.append('stopped')
+        return ' '.join(parts) + '>'
 
     def __nonzero__(self):
         return bool(self._hub)
 
     __bool__ = __nonzero__  # Python 3
+
+    def _new(self):
+        assert not self._hub
+        self._hub = _myo.Hub()
+        self._hub.set_locking_policy(self._locking_policy)
 
     def _assert_running(self):
         with self._lock:
@@ -149,7 +155,9 @@ class Hub(object):
         """
 
         with self._lock:
-            self._hub.set_locking_policy(locking_policy)
+            if self._hub:
+                self._hub.set_locking_policy(locking_policy)
+            self._locking_policy = locking_policy
 
     def _run(self, duration_ms, listener):
         """
@@ -168,19 +176,19 @@ class Hub(object):
                 raise RuntimeError(message, self._exception)
 
         def callback(listener, event):
-            # Stop immediately if the Hub was stopped via the
-            # stop() method.
-            with self._lock:
-                if self._stopped:
-                    return False
-
-            # Invoke the listener but catch the event.
             try:
-                return _invoke_listener(listener, event)
+                # Stop immediately if the Hub was stopped via the
+                # stop() method.
+                with self._lock:
+                    if self._stopped:
+                        return False
+
+                    # Invoke the listener but catch the event.
+                    return _invoke_listener(listener, event)
             except Exception as exc:
-                traceback.print_exc()
                 with self._lock:
                     self._exception = exc
+                traceback.print_exc()
 
             return False
 
@@ -211,16 +219,20 @@ class Hub(object):
             if self._running:
                 raise RuntimeError('Hub is already running')
             self._running = True
+            if not self._hub:
+                self._new()
 
         # This is the worker function that is running in
         # a new thread.
         def worker():
-            while not self.stop_requested:
-                if not self._run(interval_ms, listener):
-                    self.stop()
-
-            with self._lock:
-                self._running = False
+            try:
+                while not self.stop_requested:
+                    if not self._run(interval_ms, listener):
+                        self.stop()
+            finally:
+                with self._lock:
+                    self._running = False
+                    self._stopped = False
 
         with self._lock:
             self._thread = threading.Thread(target=worker)
@@ -281,7 +293,9 @@ class Hub(object):
             message = 'Hub.shutdown() must not be called from DeviceListener'
             raise RuntimeError(message)
 
-        self._hub.shutdown()
+        with self._lock:
+            if self._hub:
+                self._hub.shutdown()
 
 
 def _invoke_listener(listener, event):
