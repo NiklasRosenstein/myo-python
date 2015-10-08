@@ -87,6 +87,13 @@ Check the [examples](examples/) directory for more.
     > set PATH=%PATH%;.\myo-sdk-win-0.9.0\bin
     > python myo-python\examples\hello_myo.py
 
+Or, after you've installed myo-python to the virtual environment, use
+a bash script to activate the development environment.
+
+    @echo off
+    SET PATH=%PATH%;%~dp0myo-sdk-win-0.9.0\bin
+    CALL env\Scripts\activate
+
 ### Windows (Cygwin)
 
     $ git clone git@github.com:NiklasRosenstein/myo-python.git
