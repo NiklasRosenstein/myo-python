@@ -124,19 +124,17 @@ class EnumerationMeta(type):
         # class.
         for key, value in enum_values.items():
 
-            # Create the new object. We must not use the classes'
-            # __new__() method as it resolves the object from the
-            # existing values.
-            obj = object.__new__(class_)
-            object.__init__(obj)
 
-            obj.value = value
-            obj.name = key
-
-            if key == '__fallback__':
-                obj.name = '-invalid-'
+            if key == '__fallback__' and value:
+                obj = value = True
             else:
+                # Create the new object. We must not use the classes'
+                # __new__() method as it resolves the object from the
+                # existing values.
+                obj = object.__new__(class_)
+                obj._Enumeration__init(key, value)
                 class_._values[value] = obj
+
             setattr(class_, key, obj)
 
         return class_
@@ -154,7 +152,11 @@ class Enumeration(six.with_metaclass(EnumerationMeta)):
     components of the class that are integers will be automatically
     converted to instances of the Enumeration class. Creating new
     instances of the class will only work if the value is an existing
-    enumeration value. """
+    enumeration value.
+
+    An Enumeration object without a `name` is invalid. This can only
+    be the case when `__fallback__` was set to True on the Enumeration
+    class. """
 
     def __new__(cls, value, _allow_fallback=True):
         r""" Creates a new instance of the Enumeration. *value* must
@@ -173,8 +175,10 @@ class Enumeration(six.with_metaclass(EnumerationMeta)):
 
                 # If a fallback value was specified, use it
                 # instead of raising an exception.
-                if _allow_fallback and cls.__fallback__ is not None:
-                    return cls.__fallback__
+                if _allow_fallback and cls.__fallback__:
+                    obj = object.__new__(cls)
+                    obj.__init(None, value)
+                    return obj
 
                 raise NoSuchEnumerationValue(cls.__name__, value)
 
@@ -194,7 +198,14 @@ class Enumeration(six.with_metaclass(EnumerationMeta)):
         if type(value) == cls:
             return value
 
-        raise TypeError('value must be %s or int' % cls.__name__)
+        raise TypeError('value must be %s, string or int' % cls.__name__)
+
+    def __init(self, name, value):
+        super(Enumeration, self).__init__()
+        self.name = name
+        self.value = value
+        if not isinstance(value, int):
+            raise TypeError('enumeration value must be int')
 
     def __hash__(self):
         return hash(self.value)
@@ -213,12 +224,18 @@ class Enumeration(six.with_metaclass(EnumerationMeta)):
         return self.value
 
     def __str__(self):
-        class_name = self.__class__.__name__
-        return '<%s: %s>' % (class_name, self.name)
+        class_name = type(self).__name__
+        if self.name:
+            return '<%s: %s>' % (class_name, self.name)
+        else:
+            return '<%s: {invalid:%d}>' % (class_name, self.value)
 
     def __repr__(self):
-        class_name = self.__class__.__name__
-        return '<%s: [%d] %s>' % (class_name, self.value, self.name)
+        class_name = type(self).__name__
+        if self.name:
+            return '<%s: [%d] %s>' % (class_name, self.value, self.name)
+        else:
+            return '<%s: {invalid:%d}>' % (class_name, self.value)
 
     def __index__(self):
         return self.value

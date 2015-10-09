@@ -37,20 +37,20 @@ class Result(Enumeration):
     error = 1
     error_invalid_argument = 2
     error_runtime = 3
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class VibrationType(Enumeration):
     short = 0
     medium = 1
     long = 2
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class StreamEmg(Enumeration):
     disabled = 0
     enabled = 1
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class Pose(Enumeration):
@@ -60,7 +60,7 @@ class Pose(Enumeration):
     wave_out = 3
     fingers_spread = 4
     double_tap = 5
-    __fallback__ = -1
+    __fallback__ = True
     num_poses = Enumeration.Data(6)
 
 
@@ -79,14 +79,14 @@ class EventType(Enumeration):
     emg = 11
     bettery_level = 12
     warmup_completed = 13
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class VersionComponent(Enumeration):
     major = 0
     minor = 1
     patch = 2
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class OrientationIndex(Enumeration):
@@ -94,58 +94,58 @@ class OrientationIndex(Enumeration):
     y = 1
     z = 2
     w = 3
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class HandlerResult(Enumeration):
     continue_ = 0
     stop = 1
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class LockingPolicy(Enumeration):
     none = 0      # Pose events are always sent.
     standard = 1  # (default) Pose events are not sent while a Myo is locked.
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class Arm(Enumeration):
     right = 0
     left = 1
     unknown = 2
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class XDirection(Enumeration):
     toward_wrist = 0
     toward_elbow = 1
     unknown = 2
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class UnlockType(Enumeration):
     timed = 0
     hold = 1
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class UserActionType(Enumeration):
     single = 0
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class WarmupState(Enumeration):
     unknown = 0
     cold = 1
     warm = 2
-    __fallback__ = -1
+    __fallback__ = True
 
 
 class WarmupResult(Enumeration):
     unknown = 0
     success = 1
     failed_timeout = 2
-    __fallback__ = -1
+    __fallback__ = True
 
 
 # Backwards compatibility

@@ -367,9 +367,10 @@ def _invoke_listener(listener, event):
         result = result and _('on_emg_data', event.emg)
     elif kind == EventType.warmup_completed:
         result = result and _('on_warmup_completed', event.warmup_result)
+    elif kind.name:
+        warnings.warn('unhandled myo.EventType: {0}'.format(kind.name), RuntimeWarning)
     else:
-        warnings.warn('unknown myo.EventType, maybe you have a new Myo SDK that '
-            'introduced new event types or you need to update myo-python', RuntimeWarning)
+        warnings.warn('unknown myo.EventType: {0}'.format(kind.value), RuntimeWarning)
 
     if not _('on_event_finished', kind, event, defaults=False):
         result = False
