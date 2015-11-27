@@ -236,6 +236,11 @@ class Feed(DeviceListener):
             with self.synchronized:
                 return self._rssi
 
+        @property
+        def emg(self):
+            with self.synchronized:
+                return self._emg
+
         def set_locking_policy(self, locking_policy):
             with self.synchronized:
                 self.__assert_connected()
