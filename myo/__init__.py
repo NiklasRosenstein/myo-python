@@ -159,10 +159,9 @@ class Hub(object):
                 self._hub.set_locking_policy(locking_policy)
             self._locking_policy = locking_policy
 
-    def _run(self, duration_ms, listener):
+    def run_once(self, duration_ms, listener):
         """
-        Private version of the :meth:`run` method. Does not
-        re-set the :attr:`running` attribute. Used by :meth:`run`.
+        Run *listener* for *duration_ms* seconds.
         """
 
         if not isinstance(listener, DeviceListener):
@@ -177,20 +176,14 @@ class Hub(object):
 
         def callback(listener, event):
             try:
-                # Stop immediately if the Hub was stopped via the
-                # stop() method.
                 with self._lock:
                     if self._stopped:
                         return False
-
-                    # Invoke the listener but catch the event.
                     return _invoke_listener(listener, event)
-            except Exception as exc:
+            except BaseException:
                 with self._lock:
-                    self._exception = exc
-                traceback.print_exc()
-
-            return False
+                    self._exception = sys.exc_info()
+                raise
 
         return self._hub.run(duration_ms, callback, listener)
 
@@ -227,7 +220,7 @@ class Hub(object):
         def worker():
             try:
                 while not self.stop_requested:
-                    if not self._run(interval_ms, listener):
+                    if not self.run_once(interval_ms, listener):
                         self.stop()
             finally:
                 with self._lock:

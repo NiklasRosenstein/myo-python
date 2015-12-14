@@ -280,8 +280,8 @@ class Hub(BaseTypeWrapper):
             # warn the user.
             try:
                 result = callback(ud, event)
-            except Exception:
-                traceback.print_exc()
+            except BaseException:
+                wrapper.exc_info = sys.exc_info()
                 result = False
 
             # Warn the user if the callback did not return a
@@ -308,8 +308,11 @@ class Hub(BaseTypeWrapper):
                          ud, byref(error))
         error.raise_on_error()
 
-        # Return True if the run was complete, meaning the callback
-        # did not request to halt the Hub.
+        # Did an exception occur in the callback? Propagate it.
+        exc_info = getattr(wrapper, 'exc_info', None)
+        if exc_info:
+            six.reraise(*exc_info)
+
         return not getattr(wrapper, 'stopped', False)
 
     def shutdown(self):
