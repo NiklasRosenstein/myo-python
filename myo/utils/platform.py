@@ -49,6 +49,9 @@ def select():
         result = 'Windows (Cygwin)'
     elif platform.startswith('darwin'):
         result = 'Darwin'
+    elif os.environ.get('READTHEDOCS') == 'True':
+        print('@@@ myo.utils.platform: READTHEDOCS: allowing platform {0!r} for building'.format(platform))
+        result = 'Linux'
     else:
         raise EnvironmentError('unsupported platform %s' % platform)
 
