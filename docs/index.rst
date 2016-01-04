@@ -32,7 +32,7 @@ that will be invoked on various events and when data becomes available.
 .. code-block:: python
 
   from time import sleep
-  from myo import Hub, DeviceListener
+  from myo import init, Hub, DeviceListener
 
   class Listener(DeviceListener):
 
@@ -45,6 +45,7 @@ that will be invoked on various events and when data becomes available.
       def on_orientation_data(self, myo, timestamp, quat):
           print("Orientation:", quat.x, quat.y, quat.z, quat.w)
 
+  init()
   listener = DeviceListener()
   hub = Hub()
   hub.run(1000, listener)
@@ -65,8 +66,9 @@ contains the most recent data. These proxy objects are thread-safe.
 
 .. code-block:: python
 
-  from myo import Hub, Feed
+  from myo import init, Hub, Feed
 
+  init()
   feed = Feed()
   hub = Hub()
   hub.run(1000, feed)
@@ -81,6 +83,20 @@ contains the most recent data. These proxy objects are thread-safe.
       print('Orientation:', quat.x, quat.y, quat.z, quat.w)
   finally:
     hub.shutdown()  # !! crucial
+
+Installation
+------------
+
+Since the Thalmic Myo SDK is only available for Windows and Mac, myo-python
+can only be used on these two platforms.
+
+1. Install ``myo-python`` via Pip: ``pip install myo-python``
+2. Download the `Myo SDK <https://developer.thalmic.com/downloads>`_
+3. Make sure the library can find the Myo shared library by setting
+   ``PATH`` on Windows or ``DYLD_LIBRARY_PATH`` on Mac
+
+.. note:: You can also pass the path to the shared library to :func:`myo.init`.
+
 
 Indices and tables
 ==================

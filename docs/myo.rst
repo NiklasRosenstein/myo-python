@@ -1,4 +1,6 @@
 
+.. autofunction:: myo.init
+
 .. autoclass:: myo.Hub
   :members:
   :undoc-members:

@@ -40,6 +40,10 @@ finally:
     hub.shutdown()  # !! crucial
 ```
 
+__Requirements__
+
+- [six](https://pypi.python.org/pypi/six) [required]
+
 __Projects that use myo-python__
 
 - [Myo Matlab](https://github.com/yijuilee/myomatlab)
