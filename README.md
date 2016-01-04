@@ -1,5 +1,7 @@
 # Python bindings for the Myo SDK
 
+[![Documentation Status](https://readthedocs.org/projects/myo-python/badge/?version=latest)](http://myo-python.readthedocs.org/en/latest/?badge=latest)
+
 This module is a ctypes based wrapper for the Thalmic Myo SDK that is
 compatible with Python 2 and 3. Check out the [docs][] for a tutorial
 and the API documentation and the [examples](examples) folder.
@@ -42,7 +44,7 @@ __Projects that use myo-python__
 
 - [Myo Matlab](https://github.com/yijuilee/myomatlab)
 
-  [docs]: http://niklasrosenstein.github.io/myo-python/
+  [docs]: http://myo-python.readthedocs.org/en/latest/index.html
 
 ----
 

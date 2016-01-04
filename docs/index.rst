@@ -11,6 +11,7 @@
 
 
 Introduction
+------------
 
 This module is a :mod:`ctypes` based wrapper for the Thalmic Myo SDK that
 is compatible with Python 2 and 3. The source is hosted on `GitHub
