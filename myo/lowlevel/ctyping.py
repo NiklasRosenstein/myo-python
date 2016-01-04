@@ -344,6 +344,7 @@ class Hub(BaseTypeWrapper):
 
 
 class Myo(BaseTypeWrapper):
+    ''' C-types wrapper for a Myo armband. '''
 
     @staticmethod
     def init_libmyo(lib):

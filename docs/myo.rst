@@ -1,0 +1,3 @@
+
+.. automodule:: myo
+  :members:

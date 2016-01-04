@@ -33,6 +33,8 @@ from ..utils.enum import Enumeration
 
 
 class Result(Enumeration):
+    ''' Enumeration for the result of an operation. '''
+
     success = 0
     error = 1
     error_invalid_argument = 2

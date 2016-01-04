@@ -20,9 +20,6 @@
 """
 :mod:`myo` - Python bindings for the Myo SDK
 ============================================
-
-.. author:: Niklas Rosenstein <rosensteinniklas(at)gmail.com>
-.. license:: MIT
 """
 
 __author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
@@ -45,7 +42,7 @@ from . import lowlevel as _myo
 from .lowlevel import error, ResultError, InvalidOperation
 from .vector import Vector
 from .quaternion import Quaternion
-from .device_listener import DeviceListener
+from .device_listener import DeviceListener, Feed
 
 import time
 import threading

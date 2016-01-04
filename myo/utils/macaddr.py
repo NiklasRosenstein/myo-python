@@ -18,7 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-Provides a :class:`MacAddress` class that is immutable.
+:mod:`myo.macaddr`
+~~~~~~~~~~~~~~~~~~
+
+Provides an immutable :class:`MacAddress` class.
 """
 
 import six

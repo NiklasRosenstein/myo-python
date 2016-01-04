@@ -1,5 +1,8 @@
+docs/_build
+dist/
+
 *.py[cod]
-myo/dist/
+*.egg-info
 
 # Shared libraries
 *.dll

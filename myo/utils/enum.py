@@ -18,6 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
+:mod:`myo.enum`
+~~~~~~~~~~~~~~~
+
 This module provides an :class:`Enumeration` class to easily implement
 enumerations in Python. If any non-number data should be added to an
 enumeration class (eg. a string constant or function), it should be
