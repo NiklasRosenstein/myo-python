@@ -30,7 +30,7 @@ from .vector import Vector
 from .quaternion import Quaternion
 
 
-class DeviceListener(six.with_metaclass(abc.ABCMeta)):
+class DeviceListener(object):
     """
     Interface for listening to data sent from a Myo device.
     Return False from one of its callback methods to instruct
