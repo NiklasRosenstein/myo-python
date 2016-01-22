@@ -1,6 +1,13 @@
-# Python bindings for the Myo SDK
-
-[![Documentation Status](https://readthedocs.org/projects/myo-python/badge/?version=latest)](http://myo-python.readthedocs.org/en/latest/?badge=latest)
+<p align="center">
+  <img align="center" src="https://www.myo.com/assets/sapphire/navbar/myo-logo.svg"/>
+  <img align="center" src="https://www.python.org/static/community_logos/python-logo.png"/>
+</p>
+<p align="center">
+  <a href="http://myo-python.readthedocs.org/en/latest/?badge=latest" alt="Documentation Status">
+    <img src="https://readthedocs.org/projects/myo-python/badge/?version=latest"/>
+  </a>
+</p>
+<h1 align="center">Python bindings for the Myo SDK</h1>
 
 This module is a ctypes based wrapper for the Thalmic Myo SDK that is
 compatible with Python 2 and 3. Check out the [docs][] for a tutorial

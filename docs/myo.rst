@@ -1,3 +1,5 @@
+:mod:`myo`
+==========
 
 .. autofunction:: myo.init
 
