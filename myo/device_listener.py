@@ -162,6 +162,9 @@ class Feed(DeviceListener):
                     result += 'disconnected)>'
             return result
 
+        def __hash__(self):
+            return self._myo.value
+
         def __assert_connected(self):
             if not self.connected:
                 raise RuntimeError('Myo was disconnected')
