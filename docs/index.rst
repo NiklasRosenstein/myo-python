@@ -17,6 +17,7 @@ API Documentation
 .. toctree::
   :maxdepth: 1
 
+  self
   myo
   myo.lowlevel
   myo.utils
