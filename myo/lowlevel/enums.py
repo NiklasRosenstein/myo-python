@@ -100,14 +100,18 @@ class OrientationIndex(Enumeration):
 
 
 class HandlerResult(Enumeration):
+    ''' Result of an event handler. '''
+
     continue_ = 0
     stop = 1
     __fallback__ = True
 
 
 class LockingPolicy(Enumeration):
-    none = 0      # Pose events are always sent.
-    standard = 1  # (default) Pose events are not sent while a Myo is locked.
+    ''' Policy for locking. '''
+
+    none = 0      #: Pose events are always sent.
+    standard = 1  #: (default) Pose events are not sent while a Myo is locked.
     __fallback__ = True
 
 

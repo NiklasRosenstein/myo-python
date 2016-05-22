@@ -1,5 +1,5 @@
-:mod:`myo`
-==========
+Myo API (:mod:`myo`)
+====================
 
 .. autofunction:: myo.init
 

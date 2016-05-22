@@ -38,10 +38,12 @@ def main():
             print("No Myo connected after 2 seconds.")
             return
 
-        print("Hello, Myo!")
-        while hub.running and myo.connected:
-            print(myo.orientation)
-            time.sleep(0.3)
+        print("Hello, Myo! Requesting RSSI ...")
+        myo.request_rssi()
+        while hub.running and myo.connected and not myo.rssi:
+            print("Waiting for RRSI...")
+            time.sleep(0.001)
+        print("RSSI:", myo.rssi)
         print("Goodbye, Myo!")
     except KeyboardInterrupt:
         print("Keyboard Interrupt.")

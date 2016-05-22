@@ -212,6 +212,11 @@ class ErrorDetails(BaseTypeWrapper):
 
 
 class Hub(BaseTypeWrapper):
+    """
+    Lowlevel wrapper for a Myo Hub. You should never use this class
+    directly and always use the high-level :class:`myo.Hub` interface
+    instead.
+    """
 
     @staticmethod
     def init_libmyo(lib):
@@ -333,7 +338,7 @@ class Hub(BaseTypeWrapper):
         """
         Sets the myo locking policy for this Hub.
 
-        .. seealso:: :class:`enums.LockingPolicy`
+        :see also: :class:`enums.LockingPolicy`
         """
 
         self._notnull()

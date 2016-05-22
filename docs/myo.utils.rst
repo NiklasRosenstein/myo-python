@@ -1,3 +1,5 @@
+Myo Utils (:mod:`myo.utils`)
+============================
 
 .. automodule:: myo.utils.enum
   :members:
