@@ -30,7 +30,7 @@ following requirements:
 References
 ----------
 
-Roll, Pitch and Yaw: http://answers.unity3d.com/questions/416169/finding-pitchrollyaw-from-quaternions.html
+Euler Angles calculation: https://developer.thalmic.com/docs/api_reference/platform/hello-myo_8cpp-example.html
 """
 
 import math
@@ -135,32 +135,30 @@ class Quaternion(object):
     def roll(self):
         """ Calculates the Roll of the Quaternion. """
 
-        x, y, z, w = self.x, self.y, self.z, self.w
-        return math.atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z)
+        return math.atan2(2.0 * (self.w * self.x + self.y * self.z),
+                          1.0 - 2.0 * (self.x * self.x + self.y * self.y))
 
     @property
     def pitch(self):
         """ Calculates the Pitch of the Quaternion. """
 
-        x, y, z, w = self.x, self.y, self.z, self.w
-        return math.atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z)
+        c = 2.0 * (self.w * self.y - self.z * self.x)
+        return math.asin(max(-1.0, min(1.0, c)))
 
     @property
     def yaw(self):
         """ Calculates the Yaw of the Quaternion. """
 
-        x, y, z, w = self.x, self.y, self.z, self.w
-        return math.asin(2*x*y + 2*z*w)
+        return math.atan2(2.0 * (self.w * self.z + self.x * self.y),
+                          1.0 - 2.0 * (self.y * self.y + self.z * self.z))
 
     @property
-    def rpy(self):
-        """ Calculates the Roll, Pitch and Yaw of the Quaternion. """
+    def euler(self):
+        """ Returns a :class:`Vector` of the euler angles (roll, pitch and yaw). """
 
-        x, y, z, w = self.x, self.y, self.z, self.w
-        roll = math.atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z)
-        pitch = math.atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z)
-        yaw = math.asin(2*x*y + 2*z*w)
-        return (roll, pitch, yaw)
+        return Vector(self.roll, self.pitch, self.yaw)
+    
+    rpy = euler
 
     @staticmethod
     def identity():
