@@ -95,8 +95,9 @@ can only be used on these two platforms.
 
 1. Install ``myo-python`` via Pip: ``pip install myo-python``
 2. Download the `Myo SDK <https://developer.thalmic.com/downloads>`_
-3. Make sure the library can find the Myo shared library by setting
-   ``PATH`` on Windows or ``DYLD_LIBRARY_PATH`` on Mac
+3. Make sure the library can find the Myo SDK.
+   - ``PATH`` on Windows
+   - ``DYLD_LIBRARY_PATH`` on Mac. You can add something like this to your `~/.bashrc`, `export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/Developer/myo_sdk/myo.framework`
 
 .. note:: You can also pass the path to the shared library to :func:`myo.init`.
 
