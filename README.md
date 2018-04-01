@@ -5,7 +5,7 @@
 <p align="center">
   <a href="http://myo-python.readthedocs.org/en/latest/?badge=latest" alt="Documentation Status">
     <img src="https://readthedocs.org/projects/myo-python/badge/?version=latest"/>
-    <img src="https://img.shields.io/badge/version-0.2.2-blue.svg?style=flat-square"/>
+    <img src="https://img.shields.io/badge/version-1.0.0-dev-blue.svg?style=flat-square"/>
   </a>
 </p>
 <h1 align="center">Python bindings for the Myo SDK</h1>
