@@ -17,32 +17,32 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""
-:mod:`myo.tools`
-~~~~~~~~~~~~~~~~
-"""
 
-import six
-import sys
+from __future__ import print_function
+import myo
+import time
 
-class ShortcutAccess(object):
-    r""" Wrapper for any kind of object to make the access to
-    attributes easier. Prefixes all accssed attribute names with
-    the string supplied upon construction. """
 
-    __slots__ = ('_ShortcutAccess__x', '_ShortcutAccess__prefix')
+def main():
+  myo.init()
+  hub = myo.Hub()
+  listener = myo.ApiDeviceListener()
 
-    def __init__(self, x, prefix):
-        super(ShortcutAccess, self).__init__()
+  with hub.run_in_background(listener.on_event):
+    print("Waiting for a Myo to connect ...")
+    device = listener.wait_for_single_device(2)
+    if not device:
+      print("No Myo connected after 2 seconds.")
+      return
 
-        if not isinstance(prefix, six.string_types):
-            raise TypeError('prefix must be string')
+    print("Hello, Myo! Requesting RSSI ...")
+    device.request_rssi()
+    while hub.running and device.connected and not device.rssi:
+      print("Waiting for RRSI...")
+      time.sleep(0.001)
+    print("RSSI:", device.rssi)
+    print("Goodbye, Myo!")
 
-        super(ShortcutAccess, self).__setattr__('_ShortcutAccess__x', x)
-        super(ShortcutAccess, self).__setattr__('_ShortcutAccess__prefix', prefix)
 
-    def __getattr__(self, name):
-        return getattr(self.__x, self.__prefix + name)
-
-    def __setattr__(self, name, value):
-        setattr(self.__x, self.__prefix + name, value)
+if __name__ == "__main__":
+  main()

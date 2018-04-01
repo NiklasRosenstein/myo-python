@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2015-2018 Niklas Rosenstein
+# Copyright (c) 2017 Niklas Rosenstein
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -20,10 +20,48 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-__version__ = '1.0.0'
-__author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
+from __future__ import print_function
+import collections
+import myo
+import time
+import sys
 
-from ._ffi import *
-from ._device_listener import DeviceListener, ApiDeviceListener
 
-supported_sdk_version = '0.9.0'
+class EmgRate(myo.DeviceListener):
+
+  def __init__(self, n):
+    super(EmgRate, self).__init__()
+    self.times = collections.deque()
+    self.last_time = None
+    self.n = int(n)
+
+  @property
+  def rate(self):
+    if not self.times:
+      return 0.0
+    else:
+      return 1.0 / (sum(self.times) / float(self.n))
+
+  def on_arm_synced(self, event):
+    event.device.stream_emg(True)
+
+  def on_emg(self, event):
+    t = time.clock()
+    if self.last_time is not None:
+      self.times.append(t - self.last_time)
+      if len(self.times) > self.n:
+        self.times.popleft()
+    self.last_time = t
+
+
+def main():
+  myo.init()
+  hub = myo.Hub()
+  listener = EmgRate(n=50)
+  while hub.run(listener.on_event, 500):
+    print("\r\033[KEMG Rate:", listener.rate, end='')
+    sys.stdout.flush()
+
+
+if __name__ == '__main__':
+  main()

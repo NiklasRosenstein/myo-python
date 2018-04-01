@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2015-2018 Niklas Rosenstein
+# Copyright (c) 2017 Niklas Rosenstein
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -19,11 +19,34 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
+"""
+This simple example demonstrates how to implement a Device Listener and
+how to stop the event flow when the double tap pose is recognized.
+"""
 
-__version__ = '1.0.0'
-__author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
+from __future__ import print_function
+import myo
 
-from ._ffi import *
-from ._device_listener import DeviceListener, ApiDeviceListener
 
-supported_sdk_version = '0.9.0'
+class Listener(myo.DeviceListener):
+
+  def on_connected(self, event):
+    print("Hello, '{}'! Double tap to exit.".format(event.device_name))
+    event.device.vibrate(myo.VibrationType.short)
+    event.device.request_battery_level()
+
+  def on_battery_level(self, event):
+    print("Your battery level is:", event.battery_level)
+
+  def on_pose(self, event):
+    if event.pose == myo.Pose.double_tap:
+      return False
+
+
+if __name__ == '__main__':
+  myo.init()
+  hub = myo.Hub()
+  listener = Listener()
+  while hub.run(listener.on_event, 500):
+    pass
+  print('Bye, bye!')

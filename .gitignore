@@ -1,5 +1,7 @@
 docs/_build
 dist/
+myo-sdk-*/
+.env/
 
 *.py[cod]
 *.egg-info
