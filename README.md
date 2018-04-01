@@ -3,10 +3,13 @@
   <img align="center" src="https://www.python.org/static/community_logos/python-logo.png"/>
 </p>
 <p align="center">
-  <a href="http://myo-python.readthedocs.org/en/latest/?badge=latest" alt="Documentation Status">
-  <img src="https://readthedocs.org/projects/myo-python/badge/?version=latest"/>
+  <a href="https://opensource.org/licenses/MIT" alt="License: MIT">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square"/>
   </a>
   <img src="https://img.shields.io/badge/version-1.0.0--dev-blue.svg?style=flat-square"/>
+  <a href="http://myo-python.readthedocs.org/en/latest/?badge=latest" alt="Documentation Status">
+    <img src="https://readthedocs.org/projects/myo-python/badge/?version=latest"/>
+  </a>
 </p>
 <h1 align="center">Python bindings for the Myo SDK</h1>
 
