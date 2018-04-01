@@ -1,6 +1,9 @@
 
 from setuptools import setup
 
+with open('requirements.txt') as fp:
+  install_requires = fp.readlines()
+
 setup(
   name='myo-python',
   version='1.0.0',
@@ -8,6 +11,6 @@ setup(
   author='Niklas Rosenstein',
   author_email='rosensteinniklas@gmail.com',
   url='https://github.com/NiklasRosenstein/myo-python',
-  packages=['myo', 'myo.lowlevel', 'myo.utils'],
-  install_requires=['six'],
+  packages=['myo', 'myo.types'],
+  install_requires=install_requires,
 )

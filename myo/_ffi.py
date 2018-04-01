@@ -248,7 +248,7 @@ class ErrorDetails(_BaseWrapper):
   """
 
   def __init__(self):
-    super().__init__(ffi.new('libmyo_hub_t*'))
+    super(ErrorDetails, self).__init__(ffi.new('libmyo_hub_t*'))
 
   def __del__(self):
     if self._handle[0]:
@@ -282,7 +282,7 @@ class ErrorDetails(_BaseWrapper):
 class Event(_BaseWrapper):
 
   def __init__(self, handle):
-    super().__init__(handle)
+    super(Event, self).__init__(handle)
     self._type = EventType(libmyo.libmyo_event_get_type(self._handle))
 
   def __repr__(self):
@@ -461,7 +461,7 @@ class Hub(_BaseWrapper):
   """
 
   def __init__(self, application_identifier='com.niklasrosenstein.myo-python'):
-    super().__init__(ffi.new('libmyo_hub_t*'))
+    super(Hub, self).__init__(ffi.new('libmyo_hub_t*'))
     error = ErrorDetails()
     libmyo.libmyo_init_hub(self._handle, application_identifier.encode('ascii'), error.handle)
     error.raise_for_kind()
