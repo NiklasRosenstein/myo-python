@@ -4,61 +4,58 @@
 </p>
 <p align="center">
   <a href="http://myo-python.readthedocs.org/en/latest/?badge=latest" alt="Documentation Status">
-    <img src="https://readthedocs.org/projects/myo-python/badge/?version=latest"/>
-    <img src="https://img.shields.io/badge/version-1.0.0-dev-blue.svg?style=flat-square"/>
+  <img src="https://readthedocs.org/projects/myo-python/badge/?version=latest"/>
   </a>
+  <img src="https://img.shields.io/badge/version-1.0.0--dev-blue.svg?style=flat-square"/>
 </p>
 <h1 align="center">Python bindings for the Myo SDK</h1>
 
-This module is a ctypes based wrapper for the Thalmic Myo SDK that is
-compatible with Python 2 and 3. Check out the [docs][] for a tutorial
-and the API documentation and the [examples](examples) folder.
+This library is Python 2 and 3 compatible a [CFFI] based wrapper around the
+[Thalmic Myo SDK]. The documentation can be found [here][Documentation].
 
-__Features__
+  [CFFI]: https://pypi.python.org/pypi/cffi
+  [Thalmic Myo SDK]: https://developer.thalmic.com/downloads
+  [Documentation]: http://myo-python.readthedocs.org/en/latest/index.html
 
-- [x] Python 2 & 3 compatible
-- [x] Math classes for Vector and Quaternion
+### Example
 
-__Example__
+To receive data from a Myo device, you need to implement a `myo.DeviceListener`.
+Alternatively, you can use the `myo.ApiDeviceListener` that allows you to read
+the last state of a property without being bound to the event flow.
+
+Below is an example that implements a `myo.DeviceListener`:
 
 ```python
-from time import sleep
-from myo import init, Hub, DeviceListener
+import myo
 
-class Listener(DeviceListener):
+class Listener(myo.DeviceListener):
 
-    def on_pair(self, myo, timestamp, firmware_version):
-        print("Hello, Myo!")
+  def on_paired(self, event):
+    print("Hello, {}!".format(event.device_name))
+    event.device.vibrate(myo.VibrationType.short)
 
-    def on_unpair(self, myo, timestamp):
-        print("Goodbye, Myo!")
+  def on_unpair(self, event):
+    return False  # Stop the hub
 
-    def on_orientation_data(self, myo, timestamp, quat):
-        print("Orientation:", quat.x, quat.y, quat.z, quat.w)
+  def on_orientation(self, event):
+    orientation = event.orientation
+    acceleration = event.acceleration
+    gyroscope = event.gyroscope
+    # ... do something with that
 
-init()
-hub = Hub()
-hub.run(1000, Listener())
-try:
-    while True:
-        sleep(0.5)
-except KeyboardInterrupt:
-    print('\nQuit')
-finally:
-    hub.shutdown()  # !! crucial
+if __name__ == '__main__':
+  myo.init(sdk_path='./myo-sdk-win-0.9.0/')
+  hub = myo.Hub()
+  listener = Listener()
+  while hub.run(listener.on_event, 500):
+    pass
 ```
 
-__Requirements__
-
-- [six](https://pypi.python.org/pypi/six) [required]
-
-__Projects that use myo-python__
+### Projects that use myo-python
 
 - [Myo Matlab](https://github.com/yijuilee/myomatlab)
-
-  [docs]: http://myo-python.readthedocs.org/en/latest/index.html
 
 ----
 
 <p align="center">This project is licensed under the MIT License.</br>
-Copyright &copy; 2015 Niklas Rosenstein</p>
+Copyright &copy; 2015-2018 Niklas Rosenstein</p>
