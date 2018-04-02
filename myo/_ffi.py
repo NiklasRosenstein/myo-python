@@ -581,7 +581,6 @@ class Hub(_BaseWrapper):
     finally:
       self.stop()
 
-
   def stop(self):
     with self._lock:
       self._stop_requested = True

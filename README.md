@@ -13,7 +13,7 @@
 </p>
 <h1 align="center">Python bindings for the Myo SDK</h1>
 
-This library is Python 2 and 3 compatible a [CFFI] based wrapper around the
+This library is Python 2 and 3 compatible [CFFI] based wrapper around the
 [Thalmic Myo SDK]. The documentation can be found [here][Documentation].
 
   [CFFI]: https://pypi.python.org/pypi/cffi
