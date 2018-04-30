@@ -143,7 +143,9 @@ void Hub::onDeviceEvent(libmyo_event_t event)
         case libmyo_event_arm_synced:
             listener->onArmSync(myo, time,
                                 static_cast<Arm>(libmyo_event_get_arm(event)),
-                                static_cast<XDirection>(libmyo_event_get_x_direction(event)));
+                                static_cast<XDirection>(libmyo_event_get_x_direction(event)),
+                                libmyo_event_get_rotation_on_arm(event),
+                                static_cast<WarmupState>(libmyo_event_get_warmup_state(event)));
             break;
         case libmyo_event_arm_unsynced:
             listener->onArmUnsync(myo, time);
@@ -177,6 +179,9 @@ void Hub::onDeviceEvent(libmyo_event_t event)
         case libmyo_event_rssi:
             listener->onRssi(myo, time, libmyo_event_get_rssi(event));
             break;
+        case libmyo_event_battery_level:
+            listener->onBatteryLevelReceived(myo, time, libmyo_event_get_battery_level(event));
+            break;
         case libmyo_event_emg: {
             int8_t emg[] = { libmyo_event_get_emg(event, 0),
                              libmyo_event_get_emg(event, 1),
@@ -187,6 +192,10 @@ void Hub::onDeviceEvent(libmyo_event_t event)
                              libmyo_event_get_emg(event, 6),
                              libmyo_event_get_emg(event, 7) };
             listener->onEmgData(myo, time, emg);
+            break;
+        }
+        case libmyo_event_warmup_completed: {
+            listener->onWarmupCompleted(myo, time, static_cast<WarmupResult>(libmyo_event_get_warmup_result(event)));
             break;
         }
         }

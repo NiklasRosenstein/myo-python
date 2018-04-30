@@ -20,6 +20,12 @@ void Myo::requestRssi() const
 }
 
 inline
+void Myo::requestBatteryLevel() const
+{
+    libmyo_request_battery_level(_myo, myo::ThrowOnError());
+}
+
+inline
 void Myo::unlock(UnlockType type)
 {
     libmyo_myo_unlock(_myo, static_cast<libmyo_unlock_type_t>(type), ThrowOnError());

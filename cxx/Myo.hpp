@@ -26,6 +26,10 @@ public:
     /// @see DeviceListener::onRssi()
     void requestRssi() const;
 
+    /// Request the battery level of the Myo. An onBatteryLevelReceived event will be generated with the value.
+    /// @see DeviceListener::onBatteryLevelReceived().
+    void requestBatteryLevel() const;
+
     /// Unlock types supported by Myo.
     enum UnlockType {
         unlockTimed = libmyo_unlock_timed,

@@ -45,6 +45,37 @@ void libmyo_free_error_details(libmyo_error_details_t);
 
 /// @}
 
+/// \defgroup libmyo_string Strings
+/// @{
+
+// Opaque string.
+typedef void* libmyo_string_t;
+
+// Return a null-terminated string from the opaque string.
+LIBMYO_EXPORT
+const char* libmyo_string_c_str(libmyo_string_t);
+
+// Free the resources allocated by the string object.
+LIBMYO_EXPORT
+void libmyo_string_free(libmyo_string_t);
+
+/// @}
+
+/// \defgroup libmyo_direct_mac_addresses MAC address utilities
+/// @{
+
+/// Retrieve the string representation of a MAC address in hex.
+/// Returns a string in the format of 00-00-00-00-00-00.
+LIBMYO_EXPORT
+libmyo_string_t libmyo_mac_address_to_string(uint64_t);
+
+/// Retrieve the MAC address from a null-terminated string in the format of 00-00-00-00-00-00.
+/// Returns 0 if the string does not match the format.
+LIBMYO_EXPORT
+uint64_t libmyo_string_to_mac_address(const char*);
+
+/// @}
+
 /// @defgroup libmyo_hub Hub instance
 /// @{
 
@@ -100,6 +131,11 @@ typedef enum {
     libmyo_vibration_long
 } libmyo_vibration_type_t;
 
+/// Retrieve the MAC address of a Myo.
+/// The MAC address is unique to the physical Myo, and is a 48-bit number.
+LIBMYO_EXPORT
+uint64_t libmyo_get_mac_address(libmyo_myo_t myo);
+
 /// Vibrate the given myo.
 /// Can be called when a Myo is paired.
 /// @returns libmyo_success if the Myo successfully vibrated, otherwise
@@ -113,6 +149,14 @@ libmyo_result_t libmyo_vibrate(libmyo_myo_t myo, libmyo_vibration_type_t type, l
 ///  - libmyo_error_invalid_argument if \a myo is NULL
 LIBMYO_EXPORT
 libmyo_result_t libmyo_request_rssi(libmyo_myo_t myo, libmyo_error_details_t* out_error);
+
+
+/// Request the battery level for a given Myo.
+/// A libmyo_event_battery_level event will be generated with the value of the battery level.
+/// @returns libmyo_success if the Myo successfully requested the battery level, otherwise
+///  - libmyo_error_invalid_argument if \a myo is NULL
+LIBMYO_EXPORT
+libmyo_result_t libmyo_request_battery_level(libmyo_myo_t myo_opq, libmyo_error_details_t* out_error);
 
 /// EMG streaming modes.
 typedef enum {
@@ -202,6 +246,8 @@ typedef enum {
     libmyo_event_unlocked,         ///< A Myo has become unlocked.
     libmyo_event_locked,           ///< A Myo has become locked.
     libmyo_event_emg,              ///< EMG data has been received.
+    libmyo_event_battery_level,    ///< A battery level value has been received.
+    libmyo_event_warmup_completed, ///< The warmup period has completed.
 } libmyo_event_type_t;
 
 /// Information about an event.
@@ -219,6 +265,15 @@ uint64_t libmyo_event_get_timestamp(libmyo_event_t event);
 /// Retrieve the Myo associated with an event.
 LIBMYO_EXPORT
 libmyo_myo_t libmyo_event_get_myo(libmyo_event_t event);
+
+/// Retrieve the MAC address of the myo associated with an event.
+LIBMYO_EXPORT
+uint64_t libmyo_event_get_mac_address(libmyo_event_t event_opq);
+
+/// Retrieve the name of the myo associated with an event.
+/// Caller must free the returned string. @see libmyo_string functions.
+LIBMYO_EXPORT
+libmyo_string_t libmyo_event_get_myo_name(libmyo_event_t event);
 
 /// Components of version.
 typedef enum {
@@ -264,6 +319,37 @@ typedef enum {
 LIBMYO_EXPORT
 libmyo_x_direction_t libmyo_event_get_x_direction(libmyo_event_t event);
 
+/// Possible warmup states for Myo.
+typedef enum {
+    libmyo_warmup_state_unknown = 0, ///< Unknown warm up state.
+    libmyo_warmup_state_cold    = 1, ///< Myo needs to warm up.
+    libmyo_warmup_state_warm    = 2, ///< Myo is already in a warmed up state.
+} libmyo_warmup_state_t;
+
+/// Retrieve the warmup state of the Myo associated with an event.
+/// Valid for libmyo_event_arm_synced events only.
+LIBMYO_EXPORT
+libmyo_warmup_state_t libmyo_event_get_warmup_state(libmyo_event_t event);
+
+/// Possible warmup results for Myo.
+typedef enum {
+    libmyo_warmup_result_unknown        = 0, ///< Unknown warm up result.
+    libmyo_warmup_result_success        = 1, ///< The warm up period has completed successfully.
+    libmyo_warmup_result_failed_timeout = 2, ///< The warm up period timed out.
+} libmyo_warmup_result_t;
+
+/// Retrieve the warmup result of the Myo associated with an event.
+/// Valid for libmyo_event_warmup_completed events only.
+LIBMYO_EXPORT
+libmyo_warmup_result_t libmyo_event_get_warmup_result(libmyo_event_t event);
+
+/// Retrieve the estimated rotation of Myo on the user's arm after a sync.
+/// The values specifies the rotation of the myo on the arm (0 - logo facing down, pi - logo facing up)
+/// Only supported by FW 1.3.x and above (older firmware will always report 0 for the rotation)
+/// Valid for libmyo_event_arm_synced events only.
+LIBMYO_EXPORT
+float libmyo_event_get_rotation_on_arm(libmyo_event_t event);
+
 /// Index into orientation data, which is provided as a quaternion.
 /// Orientation data is returned as a unit quaternion of floats, represented as `w + x * i + y * j + z * k`.
 typedef enum {
@@ -300,6 +386,11 @@ libmyo_pose_t libmyo_event_get_pose(libmyo_event_t event);
 /// Valid for libmyo_event_rssi events only.
 LIBMYO_EXPORT
 int8_t libmyo_event_get_rssi(libmyo_event_t event);
+
+/// Retrieve the battery level of the Myo armband associated with an event.
+/// Only valid for libmyo_event_battery_level event.
+LIBMYO_EXPORT
+uint8_t libmyo_event_get_battery_level(libmyo_event_t event);
 
 /// Retrieve an EMG data point associated with an event.
 /// Valid for libmyo_event_emg events only.
