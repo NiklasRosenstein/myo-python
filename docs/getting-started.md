@@ -22,7 +22,7 @@ class Listener(myo.DeviceListener):
     print("Hello, {}!".format(event.device_name))
     event.device.vibrate(myo.VibrationType.short)
 
-  def on_unpair(self, event):
+  def on_unpaired(self, event):
     return False  # Stop the hub
 
   def on_orientation(self, event):
