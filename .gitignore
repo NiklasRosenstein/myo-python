@@ -1,5 +1,8 @@
-docs/_build
+docs/build/
 dist/
+myo-sdk*/
+Pipfile
+.venv
 
 *.py[cod]
 *.egg-info

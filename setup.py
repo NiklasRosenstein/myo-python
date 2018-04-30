@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
   name='myo-python',
-  version='0.2.2',
+  version='0.2.3',
   description='Python bindings for the Thalmic Labs Myo SDK',
   author='Niklas Rosenstein',
   author_email='rosensteinniklas@gmail.com',
