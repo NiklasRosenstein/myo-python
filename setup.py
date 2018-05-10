@@ -12,5 +12,6 @@ setup(
   author_email='rosensteinniklas@gmail.com',
   url='https://github.com/NiklasRosenstein/myo-python',
   packages=['myo', 'myo.types'],
+  package_data={'myo': ['libmyo.h']},
   install_requires=install_requires,
 )
