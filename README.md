@@ -6,40 +6,42 @@
   <a href="https://opensource.org/licenses/MIT" alt="License: MIT">
     <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square"/>
   </a>
-  <img src="https://img.shields.io/badge/version-1.0.0--dev-blue.svg?style=flat-square"/>
-  <a href="http://myo-python.readthedocs.org/en/latest/?badge=latest" alt="Documentation Status">
-    <img src="https://readthedocs.org/projects/myo-python/badge/?version=latest"/>
-  </a>
+  <img src="https://img.shields.io/badge/version-1.0.0-blue.svg?style=flat-square"/>
 </p>
 <h1 align="center">Python bindings for the Myo SDK</h1>
 
-This library is Python 2 and 3 compatible [CFFI] based wrapper around the
-[Thalmic Myo SDK]. The documentation can be found [here][Documentation].
+Myo-Python is a [CFFI] wrapper for the [Thalmic Myo SDK].
 
-  [CFFI]: https://pypi.python.org/pypi/cffi
-  [Thalmic Myo SDK]: https://developer.thalmic.com/downloads
-  [Documentation]: http://myo-python.readthedocs.org/en/latest/index.html
+__Table of Contents__
+
+* [Documentation](#documentation)
+* [Example](#example)
+* [Migrating from v0.2.x](#migrating-from-v0.2.x)
+* [Projects using Myo-Python](#projects-using-myo-python)
+
+[CFFI]: https://pypi.python.org/pypi/cffi
+[Thalmic Myo SDK]: https://developer.thalmic.com/downloads
+
+### Documentation
+
+The documentation can currently be found in the `docs/` directory in the
+[GitHub Repository](https://github.com/NiklasRosenstein/myo-python).
 
 ### Example
 
-To receive data from a Myo device, you need to implement a `myo.DeviceListener`.
-Alternatively, you can use the `myo.ApiDeviceListener` that allows you to read
-the last state of a property without being bound to the event flow.
-
-Below is an example that implements a `myo.DeviceListener`:
+Myo-Python mirrors the usage of the Myo C++ SDK in many ways as it also
+requires you to implement a `DeviceListener` that will then be invoked for
+any events received from a Myo device.
 
 ```python
 import myo
 
 class Listener(myo.DeviceListener):
-
   def on_paired(self, event):
     print("Hello, {}!".format(event.device_name))
     event.device.vibrate(myo.VibrationType.short)
-
   def on_unpaired(self, event):
     return False  # Stop the hub
-
   def on_orientation(self, event):
     orientation = event.orientation
     acceleration = event.acceleration
@@ -54,7 +56,46 @@ if __name__ == '__main__':
     pass
 ```
 
-### Projects that use myo-python
+As an alternative to implementing a custom device listener, you can instead
+use the `myp.ApiDeviceListener` class which allows you to read the most recent
+state of one or multiple Myo devices.
+
+```python
+import myo
+import time
+
+def main():
+  myo.init(sdk_path='./myo-sdk-win-0.9.0/')
+  hub = myo.Hub()
+  listener = myo.ApiDeviceListener()
+  with hub.run_in_background(listener.on_event):
+    print("Waiting for a Myo to connect ...")
+    device = listener.wait_for_single_device(2)
+    if not device:
+      print("No Myo connected after 2 seconds.")
+      return
+    print("Hello, Myo! Requesting RSSI ...")
+    device.request_rssi()
+    while hub.running and device.connected and not device.rssi:
+      print("Waiting for RRSI...")
+      time.sleep(0.001)
+    print("RSSI:", device.rssi)
+    print("Goodbye, Myo!")
+```
+
+### Migrating from v0.2.x
+
+The v0.2.x series of the Myo-Python library used `ctypes` and has a little
+bit different API. The most important changes are:
+
+* The `Hub` object no longer needs to be shut down explicitly
+* The `DeviceListener` method names changed to match the exact event name
+  as specified by the Myo SDK (eg. from `on_pair()` to `on_paired()`)
+* The `myo.init()` function provides a few more parameters to control the
+  way `libmyo` is detected.
+* `myo.Feed` has been renamed to `myo.ApiDeviceListener`
+
+### Projects using Myo-Python
 
 - [Myo Matlab](https://github.com/yijuilee/myomatlab)
 
