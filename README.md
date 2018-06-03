@@ -10,6 +10,13 @@
 </p>
 <h1 align="center">Python bindings for the Myo SDK</h1>
 
+> **Important:** Myo-Python 0.2.x is deprecated and only maintained to fix
+> crucial bugs. Please check out newer Myo-Python versions on [GitHub] or
+> [PyPI].
+
+  [Github]: https://github.com/NiklasRosenstein/myo-python
+  [PyPI]: https://pypi.org/project/myo-python/
+
 This module is a ctypes based wrapper for the Thalmic Myo SDK that is
 compatible with Python 2 and 3. Check out the [docs][] for a tutorial
 and the API documentation and the [examples](examples) folder.
