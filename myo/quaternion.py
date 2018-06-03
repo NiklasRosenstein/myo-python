@@ -157,7 +157,7 @@ class Quaternion(object):
         """ Returns a :class:`Vector` of the euler angles (roll, pitch and yaw). """
 
         return Vector(self.roll, self.pitch, self.yaw)
-    
+
     rpy = euler
 
     @staticmethod
@@ -189,7 +189,7 @@ class Quaternion(object):
             return Quaternion.identity()
 
         # Product of the square of the magnitudes.
-        k = math.sqrt(source.dot(source), dest.dot(dest))
+        k = math.sqrt(source.dot(source) * dest.dot(dest))
 
         # Return identity in the degenerate case.
         if k <= 0.0:
@@ -199,7 +199,7 @@ class Quaternion(object):
         if cos_theta / k <= -1:
             x_axis = Vector(1, 0, 0)
             y_axis = Vector(0, 1, 1)
-            if abs(source.dot(x_ais)) < 1.0:
+            if abs(source.dot(x_axis)) < 1.0:
                 cross = source.cross(x_axis)
             else:
                 cross = source.cross(y_axis)
