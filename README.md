@@ -99,6 +99,16 @@ bit different API. The most important changes are:
 
 - [Myo Matlab](https://github.com/yijuilee/myomatlab)
 
+### Changes
+
+#### v1.0.1 (2018-06-09)
+
+- Fix `Event.rotation_on_arm` (#59)
+
+#### v1.0.0 (2018-06-03)
+
+- Rewrite using CFFI
+
 ----
 
 <p align="center">This project is licensed under the MIT License.</br>
