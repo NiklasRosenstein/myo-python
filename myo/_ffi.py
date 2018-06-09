@@ -340,9 +340,9 @@ class Event(_BaseWrapper):
 
   @property
   def rotation_on_arm(self):
-    if self.type != EventType.warmup_completed:
+    if self.type != EventType.arm_synced:
       raise InvalidOperation()
-    return libmyo.libmyo_event_get_rotation_on_arm(self._handle)  # TODO: Test float result
+    return libmyo.libmyo_event_get_rotation_on_arm(self._handle)
 
   @property
   def orientation(self):
