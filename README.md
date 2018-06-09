@@ -101,6 +101,10 @@ bit different API. The most important changes are:
 
 ### Changes
 
+#### v1.0.2 (2018-06-09)
+
+- Fix `Event.warmup_result` (PR #58 @fribeiro1)
+
 #### v1.0.1 (2018-06-09)
 
 - Fix `Event.rotation_on_arm` (#59)
