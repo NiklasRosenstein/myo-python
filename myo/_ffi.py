@@ -333,7 +333,7 @@ class Event(_BaseWrapper):
     return WarmupState(libmyo.libmyo_event_get_warmup_state(self._handle))
 
   @property
-  def wramup_result(self):
+  def warmup_result(self):
     if self.type != EventType.warmup_completed:
       raise InvalidOperation()
     return WarmupResult(libmyo.libmyo_event_get_warmup_result(self._handle))
