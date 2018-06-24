@@ -15,6 +15,7 @@ setup(
   long_description_content_type='text/markdown',
   author='Niklas Rosenstein',
   author_email='rosensteinniklas@gmail.com',
+  license = 'MIT',
   url='https://github.com/NiklasRosenstein/myo-python',
   packages=['myo', 'myo.types'],
   package_data={'myo': ['libmyo.h']},
