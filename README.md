@@ -101,6 +101,12 @@ bit different API. The most important changes are:
 
 ### Changes
 
+#### v1.0.3 (unreleased)
+
+- `Event.mac_address` now returns `None` if the event's type is `EventType.emg` (#62)
+- `Hub.run()` now accepts `DeviceListener` objects for its *handler* parameter.
+  This carries over to `Hub.run_forever()` and `Hub.run_in_background()`.
+
 #### v1.0.2 (2018-06-09)
 
 - Fix `Event.warmup_result` (PR #58 @fribeiro1)
