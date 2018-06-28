@@ -517,7 +517,10 @@ class Hub(_BaseWrapper):
     """
 
     if not callable(handler):
-      raise TypeError('expected callable')
+      if hasattr(handler, 'on_event'):
+        handler = handler.on_event
+      else:
+        raise TypeError('expected callable or DeviceListener')
 
     with self._lock:
       if self._running:
