@@ -100,7 +100,7 @@ bit different API. The most important changes are:
 
 ### Changes
 
-#### v1.0.3 (unreleased)
+#### v1.0.3 (2018-06-28)
 
 - `Event.mac_address` now returns `None` if the event's type is `EventType.emg` (#62)
 - `Hub.run()` now accepts `DeviceListener` objects for its *handler* parameter.

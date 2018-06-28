@@ -9,7 +9,7 @@ with open('requirements.txt') as fp:
 
 setup(
   name='myo-python',
-  version='1.0.2',
+  version='1.0.3',
   description='Python bindings for the Thalmic Labs Myo SDK',
   long_description=readme,
   long_description_content_type='text/markdown',
