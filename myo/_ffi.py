@@ -23,7 +23,6 @@
 import contextlib
 import cffi
 import os
-import nr.enum
 import pkgutil
 import re
 import threading
@@ -32,6 +31,11 @@ import sys
 
 from .types.macaddr import MacAddress
 from .types.math import Quaternion, Vector
+
+try:
+  from nr.types.enum import Enumeration
+except ImportError:
+  from nr.enum import Enumeration
 
 
 ##
@@ -69,7 +73,7 @@ class InvalidOperation(Error):
 # Enumerations
 ##
 
-class Result(nr.enum.Enumeration):
+class Result(Enumeration):
   __fallback__ = True
   success = 0
   error = 1
@@ -77,22 +81,22 @@ class Result(nr.enum.Enumeration):
   error_runtime = 3
 
 
-class VibrationType(nr.enum.Enumeration):
+class VibrationType(Enumeration):
   __fallback__ = True
   short = 0
   medium = 1
   long = 2
 
 
-class StreamEmg(nr.enum.Enumeration):
+class StreamEmg(Enumeration):
   __fallback__ = True
   disabled = 0
   enabled = 1
 
 
-class Pose(nr.enum.Enumeration):
+class Pose(Enumeration):
   __fallback__ = True
-  num_poses = nr.enum.Data(6)
+  num_poses = Enumeration.Data(6)
   rest = 0
   fist = 1
   wave_in = 2
@@ -101,7 +105,7 @@ class Pose(nr.enum.Enumeration):
   double_tap = 5
 
 
-class EventType(nr.enum.Enumeration):
+class EventType(Enumeration):
   __fallback__ = True
   paired = 0
   unpaired = 1
@@ -119,51 +123,51 @@ class EventType(nr.enum.Enumeration):
   warmup_completed = 13
 
 
-class HandlerResult(nr.enum.Enumeration):
+class HandlerResult(Enumeration):
   __fallback__ = True
   continue_ = 0
   stop = 1
 
 
-class LockingPolicy(nr.enum.Enumeration):
+class LockingPolicy(Enumeration):
   __fallback__ = True
   none = 0      #: Pose events are always sent.
   standard = 1  #: (default) Pose events are not sent while a Myo is locked.
 
 
-class Arm(nr.enum.Enumeration):
+class Arm(Enumeration):
   __fallback__ = True
   right = 0
   left = 1
   unknown = 2
 
 
-class XDirection(nr.enum.Enumeration):
+class XDirection(Enumeration):
   __fallback__ = True
   toward_wrist = 0
   toward_elbow = 1
   unknown = 2
 
 
-class UnlockType(nr.enum.Enumeration):
+class UnlockType(Enumeration):
   __fallback__ = True
   timed = 0
   hold = 1
 
 
-class UserActionType(nr.enum.Enumeration):
+class UserActionType(Enumeration):
   __fallback__ = True
   single = 0
 
 
-class WarmupState(nr.enum.Enumeration):
+class WarmupState(Enumeration):
   __fallback__ = True
   unknown = 0
   cold = 1
   warm = 2
 
 
-class WarmupResult(nr.enum.Enumeration):
+class WarmupResult(Enumeration):
   __fallback__ = True
   unknown = 0
   success = 1
