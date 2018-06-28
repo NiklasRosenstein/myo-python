@@ -307,6 +307,8 @@ class Event(_BaseWrapper):
 
   @property
   def mac_address(self):
+    if self.type == EventType.emg:
+      return None
     return MacAddress(libmyo.libmyo_event_get_mac_address(self._handle))
 
   @property
