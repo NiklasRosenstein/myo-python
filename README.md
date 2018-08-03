@@ -15,7 +15,7 @@ __Table of Contents__
 
 * [Documentation](#documentation)
 * [Example](#example)
-* [Migrating from v0.2.x](#migrating-from-v0.2.x)
+* [Migrating from v0.2.x](#migrating-from-v02x)
 * [Projects using Myo-Python](#projects-using-myo-python)
 
 [CFFI]: https://pypi.python.org/pypi/cffi
