@@ -97,9 +97,10 @@ bit different API. The most important changes are:
 * The `Hub` object no longer needs to be shut down explicitly
 * The `DeviceListener` method names changed to match the exact event name
   as specified by the Myo SDK (eg. from `on_pair()` to `on_paired()`)
-* The `myo.init()` function provides a few more parameters to control the
-  way `libmyo` is detected.
-* `myo.Feed` has been renamed to `myo.ApiDeviceListener`
+* `Hub.run()`: The order of arguments is reversed (`handler, duration_ms`
+  instead of `duration_ms, handler`)
+* `myo.init()`: Provides a few more parameters to control the way `libmyo` is detected.
+* `myo.Feed`: Renamed to `myo.ApiDeviceListener`
 
 ### Projects using Myo-Python
 
