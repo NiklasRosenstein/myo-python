@@ -108,6 +108,12 @@ bit different API. The most important changes are:
 
 ### Changes
 
+#### v1.0.4
+
+- Remove myo.quaternion, it was a leftover and the Quaternion class was actually in myo.types.math
+- move myo.types.math and myo.types.macaddr to myo package instead
+- myo.types package is now a stub for backwards compatibility
+
 #### v1.0.3 (2018-06-28)
 
 - `Event.mac_address` now returns `None` if the event's type is `EventType.emg` (#62)
