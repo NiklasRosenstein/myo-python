@@ -24,7 +24,7 @@ import threading
 import warnings
 from ._ffi import EventType, Pose, VibrationType
 from .utils import TimeoutManager
-from .types.math import Vector, Quaternion
+from .math import Vector, Quaternion
 
 
 class DeviceListener(object):

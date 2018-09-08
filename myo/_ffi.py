@@ -29,8 +29,8 @@ import threading
 import six
 import sys
 
-from .types.macaddr import MacAddress
-from .types.math import Quaternion, Vector
+from .macaddr import MacAddress
+from .math import Quaternion, Vector
 
 try:
   from nr.types.enum import Enumeration
