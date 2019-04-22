@@ -33,9 +33,9 @@ from .macaddr import MacAddress
 from .math import Quaternion, Vector
 
 try:
-  from nr.types.enum import Enumeration
-except ImportError:
-  from nr.enum import Enumeration
+  from enum import Enum
+except:
+  from enum34 import Enum
 
 
 ##
@@ -73,7 +73,7 @@ class InvalidOperation(Error):
 # Enumerations
 ##
 
-class Result(Enumeration):
+class Result(Enum):
   __fallback__ = True
   success = 0
   error = 1
@@ -81,22 +81,21 @@ class Result(Enumeration):
   error_runtime = 3
 
 
-class VibrationType(Enumeration):
+class VibrationType(Enum):
   __fallback__ = True
   short = 0
   medium = 1
   long = 2
 
 
-class StreamEmg(Enumeration):
+class StreamEmg(Enum):
   __fallback__ = True
   disabled = 0
   enabled = 1
 
 
-class Pose(Enumeration):
+class Pose(Enum):
   __fallback__ = True
-  num_poses = Enumeration.Data(6)
   rest = 0
   fist = 1
   wave_in = 2
@@ -105,7 +104,10 @@ class Pose(Enumeration):
   double_tap = 5
 
 
-class EventType(Enumeration):
+Pose.num_poses = 6
+
+
+class EventType(Enum):
   __fallback__ = True
   paired = 0
   unpaired = 1
@@ -123,51 +125,51 @@ class EventType(Enumeration):
   warmup_completed = 13
 
 
-class HandlerResult(Enumeration):
+class HandlerResult(Enum):
   __fallback__ = True
   continue_ = 0
   stop = 1
 
 
-class LockingPolicy(Enumeration):
+class LockingPolicy(Enum):
   __fallback__ = True
   none = 0      #: Pose events are always sent.
   standard = 1  #: (default) Pose events are not sent while a Myo is locked.
 
 
-class Arm(Enumeration):
+class Arm(Enum):
   __fallback__ = True
   right = 0
   left = 1
   unknown = 2
 
 
-class XDirection(Enumeration):
+class XDirection(Enum):
   __fallback__ = True
   toward_wrist = 0
   toward_elbow = 1
   unknown = 2
 
 
-class UnlockType(Enumeration):
+class UnlockType(Enum):
   __fallback__ = True
   timed = 0
   hold = 1
 
 
-class UserActionType(Enumeration):
+class UserActionType(Enum):
   __fallback__ = True
   single = 0
 
 
-class WarmupState(Enumeration):
+class WarmupState(Enum):
   __fallback__ = True
   unknown = 0
   cold = 1
   warm = 2
 
 
-class WarmupResult(Enumeration):
+class WarmupResult(Enum):
   __fallback__ = True
   unknown = 0
   success = 1

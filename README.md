@@ -1,5 +1,4 @@
 
-
 ## Announcements
 
 > [Oct 15, 2018] Thalmic Labs have announced the discontinuation of the Myo
@@ -120,6 +119,7 @@ bit different API. The most important changes are:
 - Remove myo.quaternion, it was a leftover and the Quaternion class was actually in myo.types.math
 - move myo.types.math and myo.types.macaddr to myo package instead
 - myo.types package is now a stub for backwards compatibility
+- Depend on `enum34` package instead of `nr.types.enum` which has been removed in `nr.types>=2.0.0`
 
 #### v1.0.3 (2018-06-28)
 
