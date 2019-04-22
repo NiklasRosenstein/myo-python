@@ -1,13 +1,20 @@
-**NOTE Myo-Python 1.0 has been release and it comes with a number of API changes. If you have been
-following an older tutorial, you might have the new version installed but use code that worked with
-the old version.  
-Check the [Migrating from v0.2.x](#migrating-from-v02x) section below.**
+
+
+## Announcements
+
+> [Oct 15, 2018] Thalmic Labs have announced the discontinuation of the Myo
+> armband.
+
+> [Jun 28, 2018] Myo-Python 1.0 has been released. It comes with a number of
+> API changes. If you have been following an older tutorial, you might have
+> the new version installed but use code that worked with the old version.  
+> Check the [Migrating from v0.2.x](#migrating-from-v02x) section below.
 
 ---
 
 <p align="center">
-  <img align="center" src="https://www.myo.com/assets/sapphire/navbar/myo-logo.svg"/>
-  <img align="center" src="https://www.python.org/static/community_logos/python-logo.png"/>
+  <img align="center" height="70px" src="docs/myo-logo.jpg"/>
+  <img align="center" height="70px" src="https://www.python.org/static/community_logos/python-logo.png"/>
 </p>
 <p align="center">
   <a href="https://opensource.org/licenses/MIT" alt="License: MIT">
