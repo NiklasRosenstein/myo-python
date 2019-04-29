@@ -33,9 +33,9 @@ from .macaddr import MacAddress
 from .math import Quaternion, Vector
 
 try:
-  from enum import Enum
+  from enum import IntEnum
 except:
-  from enum34 import Enum
+  from enum34 import IntEnum
 
 
 ##
@@ -73,7 +73,7 @@ class InvalidOperation(Error):
 # Enumerations
 ##
 
-class Result(Enum):
+class Result(IntEnum):
   __fallback__ = True
   success = 0
   error = 1
@@ -81,20 +81,20 @@ class Result(Enum):
   error_runtime = 3
 
 
-class VibrationType(Enum):
+class VibrationType(IntEnum):
   __fallback__ = True
   short = 0
   medium = 1
   long = 2
 
 
-class StreamEmg(Enum):
+class StreamEmg(IntEnum):
   __fallback__ = True
   disabled = 0
   enabled = 1
 
 
-class Pose(Enum):
+class Pose(IntEnum):
   __fallback__ = True
   rest = 0
   fist = 1
@@ -107,7 +107,7 @@ class Pose(Enum):
 Pose.num_poses = 6
 
 
-class EventType(Enum):
+class EventType(IntEnum):
   __fallback__ = True
   paired = 0
   unpaired = 1
@@ -125,51 +125,51 @@ class EventType(Enum):
   warmup_completed = 13
 
 
-class HandlerResult(Enum):
+class HandlerResult(IntEnum):
   __fallback__ = True
   continue_ = 0
   stop = 1
 
 
-class LockingPolicy(Enum):
+class LockingPolicy(IntEnum):
   __fallback__ = True
   none = 0      #: Pose events are always sent.
   standard = 1  #: (default) Pose events are not sent while a Myo is locked.
 
 
-class Arm(Enum):
+class Arm(IntEnum):
   __fallback__ = True
   right = 0
   left = 1
   unknown = 2
 
 
-class XDirection(Enum):
+class XDirection(IntEnum):
   __fallback__ = True
   toward_wrist = 0
   toward_elbow = 1
   unknown = 2
 
 
-class UnlockType(Enum):
+class UnlockType(IntEnum):
   __fallback__ = True
   timed = 0
   hold = 1
 
 
-class UserActionType(Enum):
+class UserActionType(IntEnum):
   __fallback__ = True
   single = 0
 
 
-class WarmupState(Enum):
+class WarmupState(IntEnum):
   __fallback__ = True
   unknown = 0
   cold = 1
   warm = 2
 
 
-class WarmupResult(Enum):
+class WarmupResult(IntEnum):
   __fallback__ = True
   unknown = 0
   success = 1
