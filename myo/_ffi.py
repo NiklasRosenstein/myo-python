@@ -220,7 +220,7 @@ def init(lib_name=None, bin_path=None, sdk_path=None):
   """
 
   if sum(bool(x) for x in [lib_name, bin_path, sdk_path]) > 1:
-    raise ValueError('expected zero or one arguments')
+    raise ValueError('expected zero or one argument(s)')
 
   if sdk_path:
     if sys.platform.startswith('win32'):
