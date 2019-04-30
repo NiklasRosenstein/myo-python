@@ -128,6 +128,9 @@ bit different API. The most important changes are:
 #### v1.1.0 (2019-04-30)
 
 - Include the Myo libraries for Windows and macOS in the Python package
+- `myo.init()` now will write the pre-packaged Windows/macOS shared library
+  to the directory returned by `tempfile.gettempdir()` and load it from that
+  location if no other parameters are specified
 - Add handling of `MYO_LIBNAME` environment variable in `myo.init()`
 
 #### v1.0.4 (2019-04-30)
