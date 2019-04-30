@@ -22,9 +22,11 @@
 
 import contextlib
 import cffi
+import logging
 import os
 import pkgutil
 import re
+import tempfile
 import threading
 import six
 import sys
@@ -198,12 +200,12 @@ ffi = _getffi()
 libmyo = None
 
 
-def _getdlname():
+def _getdlname(in_sdk=True):
   arch = 32 if sys.maxsize <= 2 ** 32 else 64
   if sys.platform.startswith('win32'):
     return 'myo{}.dll'.format(arch)
   elif sys.platform.startswith('darwin'):
-    return 'myo'
+    return 'myo' if in_sdk else 'libmyo.dylib'
   else:
     raise RuntimeError('unsupported platform: {!r}'.format(sys.platform))
 
@@ -219,8 +221,29 @@ def init(lib_name=None, bin_path=None, sdk_path=None):
   will figure out the path to libmyo by itself.
   """
 
-  if sum(bool(x) for x in [lib_name, bin_path, sdk_path]) > 1:
+  logger = logging.getLogger(__name__)
+  logger.debug('init(lib_name={!r}, bin_path={!r}, sdk_path={!r})'.format(
+    lib_name, bin_path, sdk_path))
+
+  argcount = sum(bool(x) for x in [lib_name, bin_path, sdk_path])
+
+  if argcount > 1:
     raise ValueError('expected zero or one argument(s)')
+
+  if argcount == 0:
+    lib_name = os.getenv('MYO_LIBNAME', '')
+    if lib_name:
+      logger.debug('  using MYO_LIBNAME={!r}'.format(lib_name))
+    else:
+      # Copy the packaged C-library to a temporary location.
+      lib_name = os.path.join(tempfile.gettempdir(), _getdlname(in_sdk=False))
+      if os.path.isfile(lib_name):
+        logger.debug('  "{}" already exists'.format(lib_name))
+      else:
+        logger.debug('  creating "{}" from package data'.format(lib_name))
+        with open(lib_name, 'wb') as fp:
+          data = pkgutil.get_data(__name__, _getdlname(in_sdk=False))
+          fp.write(data)
 
   if sdk_path:
     if sys.platform.startswith('win32'):
@@ -234,6 +257,7 @@ def init(lib_name=None, bin_path=None, sdk_path=None):
   if not lib_name:
     lib_name = _getdlname()
 
+  logger.debug('  loading "{}"'.format(lib_name))
   global libmyo
   libmyo = ffi.dlopen(lib_name)
 

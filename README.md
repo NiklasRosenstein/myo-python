@@ -24,6 +24,17 @@
 
 Myo-Python is a [CFFI] wrapper for the [Thalmic Myo SDK].
 
+> Since version 1.1.0, the `myo-python` package ships the Myo C libraries for
+> Windows and macOS so it can be used out of the box after installing Myo
+> Connect (downloads available [here][downloads] and mirrored in the [v1.0.4]
+> GitHub release).
+>
+> Note that that the included macOS library was renamed from `myo` to
+> `libmyo.dylib`.
+
+  [downloads]: https://support.getmyo.com/hc/en-us/articles/360018409792-Myo-Connect-SDK-and-firmware-downloads
+  [v1.0.4]: https://github.com/NiklasRosenstein/myo-python/releases/tag/v1.0.4
+
 __Table of Contents__
 
 * [Documentation](#documentation)
@@ -114,7 +125,12 @@ bit different API. The most important changes are:
 
 ### Changes
 
-#### v1.0.4 (2019-04-29)
+#### v1.1.0 (2019-04-30)
+
+- Include the Myo libraries for Windows and macOS in the Python package
+- Add handling of `MYO_LIBNAME` environment variable in `myo.init()`
+
+#### v1.0.4 (2019-04-30)
 
 - Remove myo.quaternion, it was a leftover and the Quaternion class was actually in myo.types.math
 - move myo.types.math and myo.types.macaddr to myo package instead

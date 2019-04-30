@@ -25,6 +25,6 @@ setuptools.setup(
   license='MIT',
   url='https://github.com/NiklasRosenstein/myo-python',
   packages=['myo', 'myo.types'],
-  package_data={'myo': ['libmyo.h']},
+  package_data={'myo': ['libmyo.h', 'myo32.dll', 'myo64.dll', 'libmyo.dylib']},
   install_requires=requirements,
 )

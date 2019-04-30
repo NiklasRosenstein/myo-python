@@ -1,2 +1,4 @@
 *.py text eol=lf
 *.md text eol=lf
+*.dll binary
+*.dylib binary
