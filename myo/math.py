@@ -171,7 +171,7 @@ class Quaternion(object):
     return iter((self.x, self.y, self.z, self.w))
 
   def __repr__(self):
-    return '{}({0}, {1}, {2}, {3})'.format(
+    return '{0}({1}, {2}, {3}, {4})'.format(
       type(self).__name__, self.x, self.y, self.z, self.w)
 
   def __invert__(self):
