@@ -69,7 +69,7 @@ if __name__ == '__main__':
 ```
 
 As an alternative to implementing a custom device listener, you can instead
-use the `myp.ApiDeviceListener` class which allows you to read the most recent
+use the `myo.ApiDeviceListener` class which allows you to read the most recent
 state of one or multiple Myo devices.
 
 ```python
