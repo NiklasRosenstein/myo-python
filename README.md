@@ -111,6 +111,7 @@ bit different API. The most important changes are:
 ### Projects using Myo-Python
 
 - [Myo Matlab](https://github.com/yijuilee/myomatlab)
+- [hayanalibhatti/Finger-Movement-Classification-via-Machine-Learning-using-EMG-Armband-for-3D-Printed-Robotic-Hand](https://github.com/shayanalibhatti/Finger-Movement-Classification-via-Machine-Learning-using-EMG-Armband-for-3D-Printed-Robotic-Hand)
 
 ### Changes
 
