@@ -2,7 +2,8 @@
 ## Announcements
 
 > [Oct 15, 2018] Thalmic Labs have announced the discontinuation of the Myo
-> armband.
+> armband. Software that used to be accessible on the Thalmic downloads page
+> can be found on the GitHub [releases](https://github.com/NiklasRosenstein/myo-python/releases) page.
 
 > [Jun 28, 2018] Myo-Python 1.0 has been released. It comes with a number of
 > API changes. If you have been following an older tutorial, you might have
