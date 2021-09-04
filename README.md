@@ -23,7 +23,7 @@
 </p>
 <h1 align="center">Python bindings for the Myo SDK</h1>
 
-Myo-Python is a [CFFI] wrapper for the [Thalmic Myo SDK].
+Myo-Python is a [CFFI] wrapper for the [Thalmic Myo SDK]. Minimum required Python version is 3.5.
 
 __Table of Contents__
 
