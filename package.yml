@@ -1,0 +1,14 @@
+name: myo-python
+version: 1.0.4
+author: Niklas Rosenstein <rosensteinniklas@gmail.com>
+modulename: myo
+description: Python bindings for the Thalmic Labs Myo SDK.
+url: https://github.com/NiklasRosenstein/myo-python
+license: MIT
+source-directory: .
+requirements:
+- cffi ^1.11.5
+- python ^3.5
+- six ^1.11.0
+package-data:
+- include: libmyo.h
