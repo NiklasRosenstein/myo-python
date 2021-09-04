@@ -12,3 +12,12 @@ requirements:
 - six ^1.11.0
 package-data:
 - include: libmyo.h
+test-drivers:
+- type: pytest
+publish:
+  pypi:
+    credentials:
+      username: __token__
+      password: $PYPI_TOKEN
+      test_username: __token__
+      test_password: $TEST_PYPI_TOKEN
