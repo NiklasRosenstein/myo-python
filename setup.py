@@ -22,7 +22,7 @@ requirements = [
 
 setuptools.setup(
   name = 'myo-python',
-  version = '1.0.4',
+  version = '1.0.5',
   author = 'Niklas Rosenstein',
   author_email = 'rosensteinniklas@gmail.com',
   description = 'Python bindings for the Thalmic Labs Myo SDK.',
