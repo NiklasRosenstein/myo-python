@@ -116,6 +116,11 @@ bit different API. The most important changes are:
 
 ### Changes
 
+#### v1.0.5 (2021-09-04)
+
+- Replace use of `time.clock()` with `time.perf_counter()` (#92)
+- Bumped minimum required Python version to 3.5
+
 #### v1.0.4 (2019-04-29)
 
 - Remove myo.quaternion, it was a leftover and the Quaternion class was actually in myo.types.math
