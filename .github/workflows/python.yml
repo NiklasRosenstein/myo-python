@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9', '3.x' ]
+        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9' ]
     steps:
     - uses: actions/checkout@v2
     - uses: conda-incubator/setup-miniconda@v2
@@ -27,7 +27,7 @@ jobs:
     - name: Setup Python ${{ matrix.python-version }} with Conda
       run: conda create -q -n env python=${{ matrix.python-version }}
     - name: Install Shut
-      run: which python; python --version; python -m pip install shut==0.18.1 'click>=7.1,<8.0'
+      run: python -m pip install shut==0.18.2 -q
     - name: Test
       run: PYTHON=$CONDA/envs/env/bin/python shut pkg test --isolate
     - name: Verify package metadata
@@ -44,7 +44,7 @@ jobs:
       with:
         python-version: 3.8
     - name: Install dependencies
-      run: pip install -q shut==0.18.1 -q
+      run: pip install -q shut==0.18.2 -q
     - name: Shut publish
       env:
         PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
