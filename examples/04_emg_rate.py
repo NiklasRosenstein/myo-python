@@ -46,7 +46,7 @@ class EmgRate(myo.DeviceListener):
     event.device.stream_emg(True)
 
   def on_emg(self, event):
-    t = time.clock()
+    t = time.perf_counter()
     if self.last_time is not None:
       self.times.append(t - self.last_time)
       if len(self.times) > self.n:

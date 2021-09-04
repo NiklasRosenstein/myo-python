@@ -11,8 +11,6 @@ with open('README.md') as fp:
   readme = fp.read()
 
 requirements = ['cffi>=1.11.5', 'six>=1.11.0']
-if sys.version < '3.4':
-  requirements.append('enum34')
 
 setuptools.setup(
   name='myo-python',
@@ -26,5 +24,6 @@ setuptools.setup(
   url='https://github.com/NiklasRosenstein/myo-python',
   packages=['myo', 'myo.types'],
   package_data={'myo': ['libmyo.h']},
+  python_requires = '>=3.5.0,<4.0.0',
   install_requires=requirements,
 )
