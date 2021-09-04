@@ -5,10 +5,10 @@ name: Python package
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ master ]
     tags: [ '*' ]
   pull_request:
-    branches: [ develop ]
+    branches: [ master ]
 
 jobs:
   test:
