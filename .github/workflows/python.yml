@@ -27,7 +27,7 @@ jobs:
     - name: Setup Python ${{ matrix.python-version }} with Conda
       run: conda create -q -n env python=${{ matrix.python-version }}
     - name: Install Shut
-      run: which python; python -m pip install shut==0.18.1 -q
+      run: which python; python --version; python -m pip install shut==0.18.1 -q
     - name: Test
       run: PYTHON=$CONDA/envs/env/bin/python shut pkg test --isolate
     - name: Verify package metadata
